@@ -40,7 +40,6 @@ Governance keeps those failure modes boring and visible.
 | `CRYSTAL.md` | session-local current state, decisions, open loops, evidence handles | unrelated sessions, long logs, credentials |
 | `sync_queue.jsonl` | proposed cross-session deltas with kind, summary, evidence, and targeting | prose dumps, unstructured reports |
 | reports | temporary audit evidence | durable profile truth |
-| review board | remediation queue and closure trail | hidden automatic writes |
 
 ## Worker roles
 
@@ -73,11 +72,10 @@ This prevents helper state from becoming profile truth.
 read-only audit
   -> quiet if clean
   -> wake if medium/high findings exist
-  -> draft review cards
   -> fix smallest scoped issue
   -> rerun audit
   -> close with evidence
 ```
 
-The scripts in this repo implement the read-only audit, wake gate, and card
-draft portions. They do not call external APIs or mutate Crystal state.
+The scripts in this repo implement the read-only audit and wake gate portions.
+They do not call external APIs or mutate Crystal state.

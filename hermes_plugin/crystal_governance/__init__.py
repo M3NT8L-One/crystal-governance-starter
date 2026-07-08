@@ -28,8 +28,8 @@ def register(ctx: Any) -> None:
         handler_fn=_handle_cli,
         description=(
             "Read-only Crystal governance companion. Runs sample demos, "
-            "audits Profile Crystal/session docs/sync queues, drafts review "
-            "cards, and prints a quiet triage wake summary."
+            "audits Profile Crystal/session docs/sync queues, and prints a "
+            "quiet triage wake summary."
         ),
     )
 
@@ -48,12 +48,6 @@ def _setup_cli(parser: argparse.ArgumentParser) -> None:
     check.add_argument("--root", required=True, help="Crystal state root containing profiles/")
     check.add_argument("--out", default=str(DEFAULT_OUT), help="Report output directory")
     check.add_argument("--include-absolute-paths", action="store_true", help="Include absolute paths in generated reports")
-
-    cards = sub.add_parser("card-drafts", help="Create card drafts from an existing report directory")
-    cards.add_argument("--report-dir", default=str(DEFAULT_OUT), help="Existing report directory")
-    cards.add_argument("--out", default=str(DEFAULT_OUT / "kanban-card-drafts.jsonl"), help="Card draft JSONL path")
-    cards.add_argument("--min-severity", choices=["advisory", "medium", "high"], default="medium")
-    cards.add_argument("--include-absolute-paths", action="store_true", help="Include absolute report paths in card drafts")
 
     triage = sub.add_parser("triage", help="Print a wake summary only when attention is needed")
     triage.add_argument("--report-dir", default=str(DEFAULT_OUT), help="Existing report directory")
@@ -86,18 +80,6 @@ def _handle_cli(args: argparse.Namespace) -> int:
             str(args.out),
             *(_path_flag(args)),
         )
-    if command == "card-drafts":
-        return _run_script(
-            root,
-            "seed_kanban_cards.py",
-            "--report-dir",
-            str(args.report_dir),
-            "--out",
-            str(args.out),
-            "--min-severity",
-            str(args.min_severity),
-            *(_path_flag(args)),
-        )
     if command == "triage":
         return _run_script(
             root,
@@ -127,7 +109,7 @@ def _status(root: Path, *, json_mode: bool = False) -> int:
         "sample_root": str(root / SAMPLE_ROOT),
         "scripts_dir": str(root / "scripts"),
         "read_only": True,
-        "commands": ["status", "demo", "check", "card-drafts", "triage"],
+        "commands": ["status", "demo", "check", "triage"],
     }
     if json_mode:
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -137,7 +119,7 @@ def _status(root: Path, *, json_mode: bool = False) -> int:
     print(f"  sample    : {payload['sample_root']}")
     print(f"  scripts   : {payload['scripts_dir']}")
     print("  mode      : read-only")
-    print("  commands  : status, demo, check, card-drafts, triage")
+    print("  commands  : status, demo, check, triage")
     return 0
 
 

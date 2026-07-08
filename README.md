@@ -38,10 +38,9 @@ runtime material.
 ```text
 docs/             Architecture, setup, and operating model
 policies/         Example Crystal scope, redaction, and stale-pattern policies
-scripts/          Generic Crystal audit, triage, and card-draft scripts
+scripts/          Generic Crystal audit and triage scripts
 hermes_plugin/    Read-only Hermes companion plugin scaffold
 cron/             Example quiet Gem Cutter governance cron
-kanban/           Board pattern and card template for Crystal findings
 skills/           Starter skill for Crystal governance workflows
 examples/         Tiny safe Crystal home and transcript fixtures
 .github/          CI validation workflow
@@ -58,8 +57,8 @@ python3 scripts/run_crystal_checks.py --root examples/sample-crystal-home --out 
 ```
 
 You should see JSON and Markdown reports under `reports/demo/`. Review
-generated reports/card drafts before sharing them. Absolute root/report paths
-are redacted by default unless you pass `--include-absolute-paths`.
+generated reports before sharing them. Absolute root/report paths are redacted
+by default unless you pass `--include-absolute-paths`.
 
 ## Reproduce the pattern in your Crystal setup
 
@@ -70,7 +69,6 @@ are redacted by default unless you pass `--include-absolute-paths`.
 5. Run the read-only checks against `examples/sample-crystal-home`.
 6. Run the checks against a copied or staged Crystal state directory.
 7. Only then point the checks at live Crystal state.
-8. Route medium/high findings into a review board using `kanban/` templates.
 
 ## Hermes plugin smoke path
 
@@ -126,9 +124,8 @@ not become an unreviewed promotion path for private context.
 1. A quiet cron or manual check runs a deterministic read-only audit.
 2. If clean, it stays silent.
 3. If findings exceed a threshold, a triage gate prints a short wake summary.
-4. Triage creates or routes review cards.
-5. Findings are fixed, verified, and closed with evidence.
-6. Crystal docs stay useful because temporary reports, tool noise, and local
+4. Findings are fixed, verified, and closed with evidence.
+5. Crystal docs stay useful because temporary reports, tool noise, and local
    runtime details are not promoted by accident.
 
 ## Validation

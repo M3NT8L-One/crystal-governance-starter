@@ -16,7 +16,6 @@ Hermes command surface for the governance layer:
 hermes crystal-governance status
 hermes crystal-governance demo
 hermes crystal-governance check --root /path/to/crystal-state --out reports/local
-hermes crystal-governance card-drafts --report-dir reports/local
 hermes crystal-governance triage --report-dir reports/local
 ```
 
@@ -29,7 +28,7 @@ crystal-v0 plugin
   live context injection, post-turn session doc updates, context.engine: crystal
 
 crystal-governance plugin
-  read-only governance checks, triage summaries, review-card drafts
+  read-only governance checks and triage summaries
 ```
 
 That keeps the public starter safe: people can see the governance behavior

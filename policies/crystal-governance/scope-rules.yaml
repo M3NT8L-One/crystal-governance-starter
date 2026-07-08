@@ -3,7 +3,7 @@ profile_scope:
   default_rule: "Only user-facing profile sessions write Crystal state."
   excluded_by_default:
     - cron jobs
-    - kanban workers
+    - background task workers
     - scratch agents
     - background reviewers
     - one-off maintenance workers
