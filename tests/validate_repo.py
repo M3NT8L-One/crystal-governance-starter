@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import argparse
 import importlib.util
 import json
 import re
@@ -139,17 +140,40 @@ def scan_generated_reports(report_dir: Path) -> list[str]:
     return errors
 
 
+class FakePluginContext:
+    def __init__(self) -> None:
+        self.commands: dict[str, tuple[object, object]] = {}
+
+    def register_cli_command(self, name: str, help: str, setup_fn: object, handler_fn: object, description: str) -> None:
+        self.commands[name] = (setup_fn, handler_fn)
+
+
+def run_plugin_demo(report_dir: Path) -> list[str]:
+    errors: list[str] = []
+    module = load_module(ROOT / "hermes_plugin/crystal_governance/__init__.py")
+    ctx = FakePluginContext()
+    module.register(ctx)
+    command = ctx.commands.get("crystal-governance")
+    if command is None:
+        return ["crystal-governance plugin did not register CLI command"]
+    setup_fn, handler_fn = command
+    if not callable(setup_fn) or not callable(handler_fn):
+        return ["crystal-governance plugin registered non-callable command handlers"]
+    parser = argparse.ArgumentParser()
+    setup_fn(parser)
+    status_code = handler_fn(parser.parse_args(["status", "--json"]))
+    if status_code != 0:
+        errors.append(f"crystal-governance status returned {status_code}")
+    demo_code = handler_fn(parser.parse_args(["demo", "--out", str(report_dir)]))
+    if demo_code != 0:
+        errors.append(f"crystal-governance demo returned {demo_code}")
+    return errors
+
+
 def main() -> int:
     errors = scan_static_files() + scan_python_code_flags() + scan_read_error_redaction()
     report_dir = ROOT / "reports/test"
-    subprocess.check_call([
-        sys.executable,
-        "scripts/run_crystal_checks.py",
-        "--root",
-        "examples/sample-crystal-home",
-        "--out",
-        "reports/test",
-    ], cwd=ROOT)
+    errors.extend(run_plugin_demo(report_dir))
     errors.extend(scan_generated_reports(report_dir))
     audit = report_dir / "crystal-governance-audit.json"
     data = json_load(audit)

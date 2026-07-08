@@ -61,7 +61,19 @@ run audit -> write reports -> print nothing unless medium/high findings exist
 
 Keep cron read-only. Let a human or review agent apply fixes.
 
-## 6. Keep publication separate from live state
+## 6. Link the Hermes companion plugin
+
+For a native agent/operator command surface, link the bundled read-only plugin:
+
+```bash
+python3 scripts/link_hermes_plugin.py
+hermes plugins enable crystal-governance
+hermes crystal-governance demo --out reports/plugin-demo
+```
+
+See `docs/hermes-plugin.md` for the command list and agent-facing prompt.
+
+## 7. Keep publication separate from live state
 
 Before sharing any Crystal setup:
 

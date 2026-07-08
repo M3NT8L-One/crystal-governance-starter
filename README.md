@@ -12,6 +12,7 @@ databases, or operator-specific rules.
 - **Session crystal governance**: keep per-session `CRYSTAL.md` docs useful without letting raw transcript noise become durable context.
 - **Sync queue review**: route only high-value cross-session decisions, constraints, handles, handoffs, conflicts, and closeouts.
 - **Gem Cutter cadence**: run quiet diff-aware pruning and reconciliation only when Crystal changed.
+- **Hermes plugin scaffold**: expose the governance checks through `hermes crystal-governance ...`.
 - **Pre-share validation**: scan this repo and generated reports for secrets, private paths, personal markers, and runtime-state leakage.
 
 ## Mental model
@@ -38,6 +39,7 @@ runtime material.
 docs/             Architecture, setup, and operating model
 policies/         Example Crystal scope, redaction, and stale-pattern policies
 scripts/          Generic Crystal audit, triage, and card-draft scripts
+hermes_plugin/    Read-only Hermes companion plugin scaffold
 cron/             Example quiet Gem Cutter governance cron
 kanban/           Board pattern and card template for Crystal findings
 skills/           Starter skill for Crystal governance workflows
@@ -62,12 +64,27 @@ are redacted by default unless you pass `--include-absolute-paths`.
 ## Reproduce the pattern in your Crystal setup
 
 1. Read `docs/setup-guide.md`.
-2. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
-3. Copy or adapt the policy examples under `policies/crystal-governance/`.
-4. Run the read-only checks against `examples/sample-crystal-home`.
-5. Run the checks against a copied or staged Crystal state directory.
-6. Only then point the checks at live Crystal state.
-7. Route medium/high findings into a review board using `kanban/` templates.
+2. Read `docs/hermes-plugin.md` if you want a native Hermes command surface.
+3. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
+4. Copy or adapt the policy examples under `policies/crystal-governance/`.
+5. Run the read-only checks against `examples/sample-crystal-home`.
+6. Run the checks against a copied or staged Crystal state directory.
+7. Only then point the checks at live Crystal state.
+8. Route medium/high findings into a review board using `kanban/` templates.
+
+## Hermes plugin smoke path
+
+From the repo root:
+
+```bash
+python3 scripts/link_hermes_plugin.py
+hermes plugins enable crystal-governance
+hermes crystal-governance status
+hermes crystal-governance demo --out reports/plugin-demo
+```
+
+The plugin is read-only. It makes the starter easy to inspect from an agent,
+but it does not replace the live `crystal-v0` context-engine plugin.
 
 ## Using with real Crystal state
 

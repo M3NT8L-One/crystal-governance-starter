@@ -1,0 +1,11 @@
+name: crystal-governance
+version: 0.1.0
+description: "Read-only Crystal governance companion plugin: status, sample demo, audits, card drafts, and triage wake checks."
+author: "M3NT8L-One"
+kind: standalone
+platforms:
+  - linux
+  - macos
+  - windows
+provides_cli:
+  - crystal-governance
