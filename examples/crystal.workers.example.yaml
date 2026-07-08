@@ -1,0 +1,66 @@
+# Example Crystal worker settings.
+# This is a starter contract, not a complete runtime implementation.
+
+crystal_workers:
+  state_root: /path/to/crystal-state
+  enabled_profiles:
+    - default
+
+  facet:
+    purpose: fast hot-section patching
+    cadence: every_turn_or_two
+    skip_if_no_meaningful_delta: true
+    update_mode: hot_sections_only
+    raw_tool_payloads: unavailable
+    tool_context: sanitized_summaries
+    hot_sections:
+      - Current Objective
+      - Current Working State
+      - Important Constraints
+      - Decisions and Rationale
+      - Active Open Loops
+      - Relevant Files / Artifacts / Handles
+      - Recent Useful Context / Hot Delta
+    output: structured_section_patch
+
+  crystallizer:
+    purpose: whole-session-doc compaction
+    trigger:
+      - session_doc_budget_percent >= 0.75
+      - turns_since_medium_compact >= 24
+      - quality_flags include drift_or_contradiction
+    target_budget_percent: 0.50
+    realtime_steering: false
+    output: revised_session_crystal_markdown_plus_status
+
+  gem_cutter:
+    purpose: diff-aware governance prune and sync
+    cadence: 30m
+    wake_if:
+      - profile_or_session_crystal_hash_changed_since_last_tick
+    no_op_if:
+      - no_crystal_diff_since_last_tick
+      - active_session_not_idle_enough_for_deep_prune
+    idle_deep_prune_after_minutes: 60
+    active_session_behavior: inspect_only_or_defer_deep_prune
+    allowed_actions:
+      - deep_prune_stale_context
+      - trim_redundant_or_superseded_notes
+      - reconcile_related_parallel_sessions
+      - update_profile_crystal_from_confirmed_session_state
+      - produce_memory_or_skill_promotion_proposals
+    forbidden_actions:
+      - delete_raw_transcript_or_evidence
+      - silently_write_permanent_memory_facts_or_skills
+      - collapse_unrelated_sessions_together
+      - steer_live_agent_behavior
+
+  concurrency:
+    single_writer_per_session_doc: true
+    main_request_reads_last_completed_doc: true
+    lock_stale_seconds: 300
+
+  render:
+    active_fuller_fraction: 0.60
+    steady_fraction: 0.40
+    idle_clean_fraction: 0.25

@@ -11,7 +11,6 @@ delivery:
   mode: local
   quiet_if_clean: true
 review:
-  min_card_severity: medium
   reviewer_required_for:
     - medium
     - high

@@ -68,8 +68,8 @@ hermes crystal-governance demo --out reports/plugin-demo
 Expected behavior:
 
 - `status` prints the repo root, sample root, script directory, and commands.
-- `demo` runs the sample audit, writes reports, creates zero review cards for
-  the clean sample, and exits successfully.
+- `demo` runs the sample audit, writes reports for the clean sample, and exits
+  successfully.
 
 ## Agent-Facing Prompt
 

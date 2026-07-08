@@ -45,7 +45,7 @@ Governance keeps those failure modes boring and visible.
 
 ```text
 Facet
-  small hot merge after user-facing turns
+  fast hot-section merge after user-facing turns
 
 Crystallizer
   whole-doc compaction when upper watermark or hygiene trigger fires
@@ -57,6 +57,8 @@ Gem Cutter
 Facet and Crystallizer keep the session useful while work is active. Gem Cutter
 should be quieter: wake only when Crystal changed, prefer idle windows for deep
 prune, and emit reviewable changes.
+
+See `workers.md` for worker inputs, triggers, prompt contracts, and setup.
 
 ## Scope rule
 

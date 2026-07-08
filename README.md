@@ -11,6 +11,7 @@ databases, or operator-specific rules.
 - **Profile crystal governance**: keep `PROFILE_CRYSTAL.md` small, scoped, and reviewable.
 - **Session crystal governance**: keep per-session `CRYSTAL.md` docs useful without letting raw transcript noise become durable context.
 - **Sync queue review**: route only high-value cross-session decisions, constraints, handles, handoffs, conflicts, and closeouts.
+- **Worker contracts**: explain Facet, Crystallizer, and Gem Cutter responsibilities, triggers, and setup.
 - **Gem Cutter cadence**: run quiet diff-aware pruning and reconciliation only when Crystal changed.
 - **Hermes plugin scaffold**: expose the governance checks through `hermes crystal-governance ...`.
 - **Pre-share validation**: scan this repo and generated reports for secrets, private paths, personal markers, and runtime-state leakage.
@@ -63,12 +64,13 @@ by default unless you pass `--include-absolute-paths`.
 ## Reproduce the pattern in your Crystal setup
 
 1. Read `docs/setup-guide.md`.
-2. Read `docs/hermes-plugin.md` if you want a native Hermes command surface.
-3. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
-4. Copy or adapt the policy examples under `policies/crystal-governance/`.
-5. Run the read-only checks against `examples/sample-crystal-home`.
-6. Run the checks against a copied or staged Crystal state directory.
-7. Only then point the checks at live Crystal state.
+2. Read `docs/workers.md` for Facet, Crystallizer, and Gem Cutter setup.
+3. Read `docs/hermes-plugin.md` if you want a native Hermes command surface.
+4. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
+5. Copy or adapt the policy examples under `policies/crystal-governance/`.
+6. Run the read-only checks against `examples/sample-crystal-home`.
+7. Run the checks against a copied or staged Crystal state directory.
+8. Only then point the checks at live Crystal state.
 
 ## Hermes plugin smoke path
 
@@ -138,4 +140,4 @@ The validator exercises the sample Crystal checks and scans this repository
 for obvious secret-like strings, private absolute paths, personal markers, and
 generated-report path leaks.
 
-See `docs/architecture.md` for the full setup.
+See `docs/architecture.md` and `docs/workers.md` for the full setup.

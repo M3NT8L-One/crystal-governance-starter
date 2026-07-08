@@ -48,10 +48,21 @@ Findings are grouped by surface:
 - `state`: missing or risky state layout
 - `repo`: pre-share validation of this starter repo
 
-Medium and high findings should get review cards before being fixed in live
-state.
+Medium and high findings should be reviewed before being fixed in live state.
 
-## 5. Wire a quiet cron
+## 5. Understand the worker setup
+
+Read `docs/workers.md` before wiring live maintenance. The short version:
+
+- Facet patches hot session sections after meaningful user-facing turns.
+- Crystallizer rewrites a large session doc toward the lower watermark.
+- Gem Cutter runs from a quiet cadence and only does meaningful work when
+  Crystal changed and the session is suitable for cleanup.
+
+Use `examples/crystal.workers.example.yaml` as a starting contract for routes,
+triggers, locks, and render targets.
+
+## 6. Wire a quiet cron
 
 Use `cron/crystal-governance.example.yaml` as a template. A good default is:
 
@@ -61,7 +72,7 @@ run audit -> write reports -> print nothing unless medium/high findings exist
 
 Keep cron read-only. Let a human or review agent apply fixes.
 
-## 6. Link the Hermes companion plugin
+## 7. Link the Hermes companion plugin
 
 For a native agent/operator command surface, link the bundled read-only plugin:
 
@@ -73,7 +84,7 @@ hermes crystal-governance demo --out reports/plugin-demo
 
 See `docs/hermes-plugin.md` for the command list and agent-facing prompt.
 
-## 7. Keep publication separate from live state
+## 8. Keep publication separate from live state
 
 Before sharing any Crystal setup:
 
