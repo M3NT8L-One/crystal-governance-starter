@@ -1,0 +1,30 @@
+version: 1
+profile_scope:
+  default_rule: "Only user-facing profile sessions write Crystal state."
+  excluded_by_default:
+    - cron jobs
+    - kanban workers
+    - scratch agents
+    - background reviewers
+    - one-off maintenance workers
+session_scope:
+  required_session_doc: "CRYSTAL.md"
+  required_meta: "meta.json"
+  shared_mutable_doc: "forbidden"
+sync_queue:
+  file: "sync_queue.jsonl"
+  allowed_kinds:
+    - decision
+    - constraint
+    - active_handle
+    - handoff
+    - conflict
+    - closeout
+  import_when:
+    - same topic key
+    - same active artifact handle
+    - profile-wide decision or constraint
+    - explicit handoff
+    - conflict review
+    - operator request
+    - Gem Cutter relevance mark

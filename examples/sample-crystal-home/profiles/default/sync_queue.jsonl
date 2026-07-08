@@ -1,0 +1,1 @@
+{"confidence": 0.91, "created_at": "2026-01-01T00:00:00Z", "event_id": "evt-example-001", "evidence": ["session-alpha#turn-4"], "kind": "decision", "profile": "default", "source_session": "session-alpha", "summary": "Session docs stay local; profile-wide facts move through reviewed sync events.", "targeting": "profile_hub", "topic_keys": ["crystal", "scope"]}

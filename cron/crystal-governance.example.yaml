@@ -1,0 +1,17 @@
+# Example quiet Crystal governance cron.
+# Adapt the paths for your environment before use.
+
+name: crystal-governance
+schedule: "*/30 * * * *"
+enabled: false
+description: "Run read-only Crystal living-doc governance checks and wake only on medium/high findings."
+command:
+  script: "scripts/run_crystal_checks.py --root /path/to/crystal-state --out reports/crystal/latest"
+delivery:
+  mode: local
+  quiet_if_clean: true
+review:
+  min_card_severity: medium
+  reviewer_required_for:
+    - medium
+    - high

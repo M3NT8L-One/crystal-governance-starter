@@ -1,0 +1,30 @@
+# Local/runtime state
+/reports/
+/state/
+/logs/
+/sessions/
+/profiles/
+/cache/
+__pycache__/
+.ruff_cache/
+*.pyc
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets and credentials
+.env
+.env.*
+auth.json
+credentials.json
+*.pem
+*.key
+*.p12
+*.pfx
+*token*
+*secret*
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

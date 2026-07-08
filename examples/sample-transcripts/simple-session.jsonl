@@ -1,0 +1,2 @@
+{"id":"turn-1","role":"user","content":"Set up a generic Crystal governance audit for profile and session docs."}
+{"id":"turn-2","role":"assistant","content":"Created a read-only audit that checks Profile Crystal, per-session docs, sync queue shape, and report redaction."}

@@ -1,0 +1,14 @@
+{
+  "sessions": {
+    "session-alpha": {
+      "doc_token_estimate": 320,
+      "platform": "local",
+      "topic_key": "crystal-scope"
+    },
+    "session-beta": {
+      "doc_token_estimate": 290,
+      "platform": "local",
+      "topic_key": "crystal-render"
+    }
+  }
+}

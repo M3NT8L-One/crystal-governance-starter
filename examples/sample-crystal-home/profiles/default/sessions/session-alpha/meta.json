@@ -1,0 +1,8 @@
+{
+  "activity_state": "steady",
+  "doc_token_estimate": 320,
+  "last_doc_hash": "sha256:example-alpha",
+  "profile": "default",
+  "render_state": "steady",
+  "session_id": "session-alpha"
+}

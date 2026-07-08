@@ -1,0 +1,11 @@
+version: 1
+patterns:
+  - pattern: "\\b(today|tonight|currently|right now|temporary|for now)\\b"
+    severity: advisory
+    reason: "Time-sensitive wording should be reviewed before it becomes durable."
+  - pattern: "\\b(done|fixed|completed|phase [0-9]+|PR #[0-9]+)\\b"
+    severity: advisory
+    reason: "Run-status wording may be stale after the session ends."
+  - pattern: "\\b(mic check|status check|reply exactly|tool_choice)\\b"
+    severity: advisory
+    reason: "Chatter or API-noise terms usually do not belong in durable context."

@@ -1,0 +1,14 @@
+version: 1
+forbidden_examples:
+  - credentials and tokens
+  - private keys
+  - private absolute home paths
+  - raw transcripts
+  - local databases
+  - runtime logs
+  - personal project names
+safe_handle_examples:
+  - "artifact: project/src/module.py"
+  - "report: reports/crystal/latest"
+  - "session: session-alpha#turn-4"
+default_report_paths: redacted
