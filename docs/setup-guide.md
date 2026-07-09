@@ -54,8 +54,8 @@ Medium and high findings should be reviewed before being fixed in live state.
 
 Read `docs/workers.md` before wiring live maintenance. The short version:
 
-- Facet patches hot session sections after meaningful user-facing turns.
-- Crystallizer rewrites a large session doc toward the lower watermark.
+- Facet patches hot session sections after meaningful turns (prefer-recent supersede; rolling Hot Delta).
+- Crystallizer rewrites on pressure (~75%→~50%) or earlier quality hygiene (turn/quality gates).
 - Gem Cutter runs from a quiet cadence and only does meaningful work when
   Crystal changed and the session is suitable for cleanup.
 

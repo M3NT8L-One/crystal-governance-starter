@@ -9,3 +9,18 @@ patterns:
   - pattern: "\\b(mic check|status check|reply exactly|tool_choice)\\b"
     severity: advisory
     reason: "Chatter or API-noise terms usually do not belong in durable context."
+
+# Junk / secret handle markers (Facet scrub + governance flags)
+secret_or_junk_handle_markers:
+  - "/.ssh/"
+  - "id_rsa"
+  - "id_ed25519"
+  - "auth.json"
+  - "credentials.json"
+  - "/.env"
+  - "known_hosts"
+
+system_prompt_echo_markers:
+  - "review the conversation above and consider saving to memory"
+  - "you can only call memory and skill management tools"
+

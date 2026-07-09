@@ -28,6 +28,8 @@ Living context can drift in subtle ways:
 - background worker status gets promoted as profile truth;
 - one session overwrites another session's working state;
 - stale "currently" and "for now" claims survive after the run ends;
+- Facet stacks near-duplicate objectives/open loops while the doc is still small;
+- Hot Delta freezes early turns instead of rolling with the conversation;
 - scheduled pruning runs even when nothing changed.
 
 Governance keeps those failure modes boring and visible.
@@ -45,10 +47,10 @@ Governance keeps those failure modes boring and visible.
 
 ```text
 Facet
-  fast hot-section merge after user-facing turns
+  fast prefer-recent hot-section merge; Hot Delta is a rolling replace window
 
 Crystallizer
-  whole-doc compaction when upper watermark or hygiene trigger fires
+  pressure compact at upper watermark, or earlier quality hygiene (turn/quality gates)
 
 Gem Cutter
   diff-aware governance prune, sync, and conflict review

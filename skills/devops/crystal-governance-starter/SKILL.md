@@ -11,6 +11,8 @@ Use this skill when reviewing or maintaining Crystal-style living context docs.
 5. Move cross-session context through structured sync events and review.
 6. Do not promote raw tool output, private paths, credentials, or chat/API noise.
 7. Use sanitized tool summaries for Facet-style maintenance.
+8. Prefer-recent Facet merges; Hot Delta is a rolling replace window, not an archive.
+9. Crystallizer: pressure compact and earlier quality hygiene (not only 75% fill).
 8. Let Gem Cutter perform diff-aware prune/sync work only when Crystal changed and the session is suitable for cleanup.
 9. Durable memory, skill, fact, or profile promotions require explicit review.
 

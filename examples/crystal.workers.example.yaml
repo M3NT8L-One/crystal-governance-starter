@@ -1,5 +1,6 @@
 # Example Crystal worker settings.
 # This is a starter contract, not a complete runtime implementation.
+# Aligned with Crystal v0 Facet prefer-recent + Crystallizer pressure/hygiene (2026-07).
 
 crystal_workers:
   state_root: /path/to/crystal-state
@@ -7,12 +8,18 @@ crystal_workers:
     - default
 
   facet:
-    purpose: fast hot-section patching
+    purpose: fast hot-section patching with prefer-recent supersede
     cadence: every_turn_or_two
     skip_if_no_meaningful_delta: true
     update_mode: hot_sections_only
+    merge_mode: prefer_recent_supersede
+    hot_delta_mode: replace_rolling_window
     raw_tool_payloads: unavailable
     tool_context: sanitized_summaries
+    scrub:
+      - secret_like_paths   # e.g. SSH keys, auth/credential files, .env
+      - system_prompt_echoes
+      - junk_or_mangled_handles
     hot_sections:
       - Current Objective
       - Current Working State
@@ -21,17 +28,34 @@ crystal_workers:
       - Active Open Loops
       - Relevant Files / Artifacts / Handles
       - Recent Useful Context / Hot Delta
+    section_caps_example:
+      Current Objective: 6
+      Current Working State: 10
+      Important Constraints: 10
+      Decisions and Rationale: 10
+      Active Open Loops: 8
+      Relevant Files / Artifacts / Handles: 16
+      Recent Useful Context / Hot Delta: 6
     output: structured_section_patch
 
   crystallizer:
-    purpose: whole-session-doc compaction
+    purpose: whole-session-doc rewrite (pressure compact or earlier quality hygiene)
     trigger:
-      - session_doc_budget_percent >= 0.75
-      - turns_since_medium_compact >= 24
-      - quality_flags include drift_or_contradiction
-    target_budget_percent: 0.50
+      - session_doc_budget_percent >= 0.75          # pressure
+      - turns_since_medium_compact >= 12            # turn cadence / hygiene
+      - quality hygiene after hygiene_min_turns (6):
+          - dupe_density_or_near_duplicate_stacks
+          - section_counts_near_facet_caps_with_dups
+          - junk_or_secret_handles
+          - system_prompt_memory_review_echoes
+    pressure_target_budget_percent: 0.50
+    hygiene_soft_target_fraction_of_current_doc: 0.62
+    hygiene_min_turns: 6
     realtime_steering: false
     output: revised_session_crystal_markdown_plus_status
+    status_fields_example:
+      - compact_reason   # pressure | hygiene
+      - usage_tokens
 
   gem_cutter:
     purpose: diff-aware governance prune and sync

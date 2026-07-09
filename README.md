@@ -22,8 +22,8 @@ databases, or operator-specific rules.
 Profile Crystal    = profile-wide continuity and cross-session decisions
 Session Crystal    = local working context for one conversation
 Sync queue         = structured proposals crossing session boundaries
-Facet              = small per-turn hot merge
-Crystallizer       = whole-doc compaction toward a lower watermark
+Facet              = small per-turn prefer-recent hot merge; rolling Hot Delta
+Crystallizer       = pressure compact (~75%→~50%) or earlier quality hygiene
 Gem Cutter         = scheduled governance prune, sync, and conflict review
 Governance         = scope, hygiene, redaction, review, and cleanup
 ```
