@@ -1,7 +1,8 @@
 """Hermes companion plugin for Crystal governance starter checks.
 
 This plugin is intentionally read-only. It registers an operator CLI command
-that runs the starter repo's audit scripts against a Crystal state root.
+that runs the starter repo's audit, health, and triage scripts against a Crystal
+state root.
 """
 
 from __future__ import annotations
@@ -28,8 +29,8 @@ def register(ctx: Any) -> None:
         handler_fn=_handle_cli,
         description=(
             "Read-only Crystal governance companion. Runs sample demos, "
-            "audits Profile Crystal/session docs/sync queues, and prints a "
-            "quiet triage wake summary."
+            "audits Profile Crystal/session docs/sync queues, reports state "
+            "health, and prints a quiet triage wake summary."
         ),
     )
 
@@ -48,6 +49,12 @@ def _setup_cli(parser: argparse.ArgumentParser) -> None:
     check.add_argument("--root", required=True, help="Crystal state root containing profiles/")
     check.add_argument("--out", default=str(DEFAULT_OUT), help="Report output directory")
     check.add_argument("--include-absolute-paths", action="store_true", help="Include absolute paths in generated reports")
+
+    health = sub.add_parser("health", help="Report Crystal state and optional source health")
+    health.add_argument("--root", required=True, help="Crystal state root containing profiles/")
+    health.add_argument("--profile", default="default")
+    health.add_argument("--source-root", help="Optional deployed source tree to inspect")
+    health.add_argument("--out", default=str(DEFAULT_OUT / "crystal-health.json"))
 
     triage = sub.add_parser("triage", help="Print a wake summary only when attention is needed")
     triage.add_argument("--report-dir", default=str(DEFAULT_OUT), help="Existing report directory")
@@ -80,6 +87,18 @@ def _handle_cli(args: argparse.Namespace) -> int:
             str(args.out),
             *(_path_flag(args)),
         )
+    if command == "health":
+        health_args = [
+            "--root",
+            str(args.root),
+            "--profile",
+            str(args.profile),
+            "--out",
+            str(args.out),
+        ]
+        if args.source_root:
+            health_args.extend(["--source-root", str(args.source_root)])
+        return _run_script(root, "crystal_health_check.py", *health_args)
     if command == "triage":
         return _run_script(
             root,
@@ -109,7 +128,7 @@ def _status(root: Path, *, json_mode: bool = False) -> int:
         "sample_root": str(root / SAMPLE_ROOT),
         "scripts_dir": str(root / "scripts"),
         "read_only": True,
-        "commands": ["status", "demo", "check", "triage"],
+        "commands": ["status", "demo", "check", "health", "triage"],
     }
     if json_mode:
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -119,7 +138,7 @@ def _status(root: Path, *, json_mode: bool = False) -> int:
     print(f"  sample    : {payload['sample_root']}")
     print(f"  scripts   : {payload['scripts_dir']}")
     print("  mode      : read-only")
-    print("  commands  : status, demo, check, triage")
+    print("  commands  : status, demo, check, health, triage")
     return 0
 
 

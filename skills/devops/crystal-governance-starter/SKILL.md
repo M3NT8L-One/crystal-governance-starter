@@ -12,9 +12,11 @@ Use this skill when reviewing or maintaining Crystal-style living context docs.
 6. Do not promote raw tool output, private paths, credentials, or chat/API noise.
 7. Use sanitized tool summaries for Facet-style maintenance.
 8. Prefer-recent Facet merges; Hot Delta is a rolling replace window, not an archive.
-9. Crystallizer: pressure compact and earlier quality hygiene (not only 75% fill).
-8. Let Gem Cutter perform diff-aware prune/sync work only when Crystal changed and the session is suitable for cleanup.
-9. Durable memory, skill, fact, or profile promotions require explicit review.
+9. Crystallizer performs pressure compaction and earlier quality hygiene, not only 75% fill.
+10. Let Gem Cutter perform diff-aware prune/sync work only when Crystal changed and the session is suitable for cleanup.
+11. Durable memory, skill, fact, or profile promotions require explicit review.
+12. Treat `DEGRADED` as visible maintenance debt and `UNHEALTHY` as a service failure.
+13. Reconcile registry drift with a dry-run first; refuse identifier collisions, protect active sessions, archive evidence on apply, and verify rollback status on failure.
 
 ## Workflow
 
@@ -24,9 +26,12 @@ python3 scripts/run_crystal_checks.py --root examples/sample-crystal-home --out 
 
 For a real state root, run the same command against a staging copy first.
 
-When findings appear:
+When findings or health degradation appear:
 
-1. Confirm the finding.
+1. Confirm the evidence and health class.
 2. Fix the smallest relevant surface.
-3. Rerun the audit.
-4. Close with evidence.
+3. For registry drift, run `crystal_registry_reconcile.py` without `--apply`.
+4. Protect active sessions, review candidates, and apply only against staged state.
+5. If apply fails, require `rolled_back`; stop for manual restoration on `rollback_failed`.
+6. Rerun the audit and health check.
+7. Close with evidence; never publish receipts, snapshots, or archived sessions.

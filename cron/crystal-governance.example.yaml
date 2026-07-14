@@ -4,7 +4,7 @@
 name: crystal-governance
 schedule: "*/30 * * * *"
 enabled: false
-description: "Run read-only Crystal living-doc governance checks and wake only on medium/high findings."
+description: "Run read-only Crystal governance audit and health checks; wake only on findings or degraded health."
 command:
   script: "scripts/run_crystal_checks.py --root /path/to/crystal-state --out reports/crystal/latest"
 delivery:
@@ -12,5 +12,7 @@ delivery:
   quiet_if_clean: true
 review:
   reviewer_required_for:
+    - degraded
+    - unhealthy
     - medium
     - high

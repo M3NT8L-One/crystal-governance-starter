@@ -16,6 +16,7 @@ Hermes command surface for the governance layer:
 hermes crystal-governance status
 hermes crystal-governance demo
 hermes crystal-governance check --root /path/to/crystal-state --out reports/local
+hermes crystal-governance health --root /path/to/crystal-state --out reports/local/crystal-health.json
 hermes crystal-governance triage --report-dir reports/local
 ```
 
@@ -28,7 +29,7 @@ crystal-v0 plugin
   live context injection, post-turn session doc updates, context.engine: crystal
 
 crystal-governance plugin
-  read-only governance checks and triage summaries
+  read-only governance audit, health checks, and triage summaries
 ```
 
 That keeps the public starter safe: people can see the governance behavior
@@ -68,8 +69,9 @@ hermes crystal-governance demo --out reports/plugin-demo
 Expected behavior:
 
 - `status` prints the repo root, sample root, script directory, and commands.
-- `demo` runs the sample audit, writes reports for the clean sample, and exits
-  successfully.
+- `demo` runs the sample audit and health check, writes reports for the clean sample,
+  and exits successfully.
+- `health` reports `HEALTHY`, `DEGRADED`, or `UNHEALTHY` without changing state.
 
 ## Agent-Facing Prompt
 
@@ -78,7 +80,7 @@ Use this instruction when attaching the plugin to an agent:
 ```text
 When asked to inspect Crystal governance, use `hermes crystal-governance status`
 first. Use `demo` to understand the sample behavior. Use `check --root <state>`
-for real Crystal state. Treat outputs as review evidence; do not mutate Crystal
-state, memory, skills, or profile docs unless the operator explicitly asks for a
-separate fix.
+for the audit and `health --root <state>` for registry/state health. Treat
+outputs as review evidence; do not mutate Crystal state, memory, skills, or
+profile docs unless the operator explicitly asks for a separate fix.
 ```

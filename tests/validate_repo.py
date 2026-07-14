@@ -7,7 +7,6 @@ import importlib.util
 import json
 import re
 import subprocess
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -167,6 +166,19 @@ def run_plugin_demo(report_dir: Path) -> list[str]:
     demo_code = handler_fn(parser.parse_args(["demo", "--out", str(report_dir)]))
     if demo_code != 0:
         errors.append(f"crystal-governance demo returned {demo_code}")
+    health_code = handler_fn(
+        parser.parse_args(
+            [
+                "health",
+                "--root",
+                str(ROOT / "examples/sample-crystal-home"),
+                "--out",
+                str(report_dir / "plugin-health.json"),
+            ]
+        )
+    )
+    if health_code != 0:
+        errors.append(f"crystal-governance health returned {health_code}")
     return errors
 
 
@@ -179,6 +191,12 @@ def main() -> int:
     data = json_load(audit)
     if int(data.get("high_count", 0)) or int(data.get("medium_count", 0)):
         errors.append("sample audit produced medium/high findings")
+    health = json_load(report_dir / "crystal-health.json")
+    if health.get("status") != "HEALTHY" or not bool(health.get("ok")):
+        errors.append("sample health check was not healthy")
+    plugin_health = json_load(report_dir / "plugin-health.json")
+    if plugin_health.get("status") != "HEALTHY" or not bool(plugin_health.get("ok")):
+        errors.append("plugin health command was not healthy")
     if errors:
         print("\n".join(errors))
         return 1

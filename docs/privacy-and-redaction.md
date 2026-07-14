@@ -7,7 +7,8 @@ Crystal docs often summarize active work. Treat them as sensitive by default.
 - credentials, tokens, OAuth files, `.env`, API keys, private keys;
 - private absolute paths or home-directory paths;
 - raw session transcripts;
-- local databases, caches, logs, locks, and runtime registry state;
+- local databases, caches, logs, locks, runtime registry state, reconciliation
+  receipts, registry snapshots, and archived sessions;
 - personal project names or organization-specific rules that are not part of
   the generic starter;
 - unreviewed model outputs that mention private context.
