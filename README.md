@@ -13,7 +13,9 @@ databases, or operator-specific rules.
 - **Sync queue review**: route only high-value cross-session decisions, constraints, handles, handoffs, conflicts, and closeouts.
 - **Worker contracts**: explain Facet, Crystallizer, and Gem Cutter responsibilities, triggers, and setup.
 - **Gem Cutter cadence**: run quiet diff-aware pruning and reconciliation only when Crystal changed.
-- **Hermes plugin scaffold**: expose the governance checks through `hermes crystal-governance ...`.
+- **Hermes plugin scaffold**: expose read-only audit, health, and triage checks through `hermes crystal-governance ...`.
+- **Operational health**: classify registry/state/source checks as `HEALTHY`, `DEGRADED`, or `UNHEALTHY` with count-only source metadata.
+- **Reversible registry reconciliation**: dry-run drift plans, collision refusal, explicit apply, rollback, timestamped archives, and restoration receipts.
 - **Pre-share validation**: scan this repo and generated reports for secrets, private paths, personal markers, and runtime-state leakage.
 
 ## Mental model
@@ -39,7 +41,7 @@ runtime material.
 ```text
 docs/             Architecture, setup, and operating model
 policies/         Example Crystal scope, redaction, and stale-pattern policies
-scripts/          Generic Crystal audit and triage scripts
+scripts/          Generic audit, health, triage, and reconcile scripts
 hermes_plugin/    Read-only Hermes companion plugin scaffold
 cron/             Example quiet Gem Cutter governance cron
 skills/           Starter skill for Crystal governance workflows
@@ -55,6 +57,7 @@ Requires Python 3.10 or newer. No third-party Python packages are required.
 git clone https://github.com/M3NT8L-One/crystal-governance-starter.git
 cd crystal-governance-starter
 python3 scripts/run_crystal_checks.py --root examples/sample-crystal-home --out reports/demo
+python3 scripts/crystal_registry_reconcile.py --root examples/sample-crystal-home
 ```
 
 You should see JSON and Markdown reports under `reports/demo/`. Review
@@ -65,12 +68,13 @@ by default unless you pass `--include-absolute-paths`.
 
 1. Read `docs/setup-guide.md`.
 2. Read `docs/workers.md` for Facet, Crystallizer, and Gem Cutter setup.
-3. Read `docs/hermes-plugin.md` if you want a native Hermes command surface.
-4. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
-5. Copy or adapt the policy examples under `policies/crystal-governance/`.
-6. Run the read-only checks against `examples/sample-crystal-home`.
-7. Run the checks against a copied or staged Crystal state directory.
-8. Only then point the checks at live Crystal state.
+3. Read `docs/operations-health-and-reconcile.md` for health and reversible registry maintenance.
+4. Read `docs/hermes-plugin.md` if you want a native Hermes command surface.
+5. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
+6. Copy or adapt the policy examples under `policies/crystal-governance/`.
+7. Run the read-only checks against `examples/sample-crystal-home`.
+8. Run the checks against a copied or staged Crystal state directory.
+9. Only then point the checks at live Crystal state.
 
 ## Hermes plugin smoke path
 
@@ -84,13 +88,16 @@ hermes crystal-governance demo --out reports/plugin-demo
 ```
 
 The plugin is read-only. It makes the starter easy to inspect from an agent,
-but it does not replace the live `crystal-v0` context-engine plugin.
+but it does not replace the live `crystal-v0` context-engine plugin. The
+standalone registry reconciliation script is dry-run by default and is not
+exposed through the plugin.
 
 ## Using with real Crystal state
 
 Do **not** point this at live Crystal state until you understand what it reads
-and writes. The included audit scripts are read-only except for their output
-directory.
+and writes. Audit, health, triage, and plugin commands are read-only except for
+their report output. `crystal_registry_reconcile.py` is dry-run by default;
+`--apply` moves selected state into an archive and updates the registry.
 
 ```bash
 python3 scripts/run_crystal_checks.py \
@@ -102,6 +109,7 @@ Expected inspected shape:
 
 ```text
 profiles/<profile>/PROFILE_CRYSTAL.md
+profiles/<profile>/registry.json
 profiles/<profile>/sessions/<session_id>/CRYSTAL.md
 profiles/<profile>/sessions/<session_id>/meta.json
 profiles/<profile>/sync_queue.jsonl
@@ -123,21 +131,25 @@ not become an unreviewed promotion path for private context.
 
 ## Core pattern
 
-1. A quiet cron or manual check runs a deterministic read-only audit.
-2. If clean, it stays silent.
-3. If findings exceed a threshold, a triage gate prints a short wake summary.
-4. Findings are fixed, verified, and closed with evidence.
-5. Crystal docs stay useful because temporary reports, tool noise, and local
+1. A quiet cron or manual check runs deterministic read-only audit and health checks.
+2. If audit is clean and health is `HEALTHY`, it stays silent.
+3. If findings exceed a threshold or health degrades, triage prints a short wake summary.
+4. Registry drift is dry-run planned before any change; apply archives evidence and writes a receipt.
+5. Findings are fixed, verified, and closed with evidence.
+6. Crystal docs stay useful because temporary reports, tool noise, and local
    runtime details are not promoted by accident.
 
 ## Validation
 
 ```bash
 python3 tests/validate_repo.py
+python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
 The validator exercises the sample Crystal checks and scans this repository
 for obvious secret-like strings, private absolute paths, personal markers, and
-generated-report path leaks.
+generated-report path leaks. The operation tests verify health classification,
+quiet triage, dry-run safety, protected sessions, archival movement, and
+restoration receipts.
 
 See `docs/architecture.md` and `docs/workers.md` for the full setup.

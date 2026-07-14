@@ -11,7 +11,13 @@ from typing import Any
 def load(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None
-    return json.loads(path.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {"_load_error": exc.__class__.__name__}
+    if not isinstance(payload, dict):
+        return {"_load_error": "InvalidReportType"}
+    return payload
 
 
 def main() -> None:
@@ -26,12 +32,39 @@ def main() -> None:
         display_dir = str(report_dir) if args.include_absolute_paths else "<report-dir>"
         print(f"WAKE: Crystal governance report missing in {display_dir}")
         return
+    if report.get("_load_error"):
+        display_dir = str(report_dir) if args.include_absolute_paths else "<report-dir>"
+        print(
+            "WAKE: Crystal governance report unreadable: "
+            f"error={report['_load_error']} report_dir={display_dir}"
+        )
+        return
+    health = load(report_dir / "crystal-health.json")
     high = int(report.get("high_count", 0))
     medium = int(report.get("medium_count", 0))
     findings = int(report.get("finding_count", 0))
+    reasons: list[str] = []
     if high > 0 or medium >= args.medium_threshold:
+        reasons.append(f"audit high={high} medium={medium} total_findings={findings}")
+    if not health:
+        reasons.append("health report missing")
+    elif health.get("_load_error"):
+        reasons.append(f"health report unreadable error={health['_load_error']}")
+    else:
+        status = str(health.get("status") or "UNKNOWN")
+        if status != "HEALTHY":
+            degradations = ",".join(str(item) for item in health.get("degradations", [])) or "none"
+            critical = ",".join(str(item) for item in health.get("critical_failures", [])) or "none"
+            reasons.append(
+                f"health status={status} degradations={degradations} critical_failures={critical}"
+            )
+    if reasons:
         display_dir = str(report_dir) if args.include_absolute_paths else "<report-dir>"
-        print(f"WAKE: Crystal governance attention needed: high={high} medium={medium} total_findings={findings} report_dir={display_dir}")
+        print(
+            "WAKE: Crystal governance attention needed: "
+            + "; ".join(reasons)
+            + f" report_dir={display_dir}"
+        )
 
 
 if __name__ == "__main__":

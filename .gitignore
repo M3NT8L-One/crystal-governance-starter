@@ -5,6 +5,7 @@
 /sessions/
 /profiles/
 /cache/
+**/archive/registry-reconcile-*/
 __pycache__/
 .ruff_cache/
 *.pyc

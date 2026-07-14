@@ -1,6 +1,6 @@
 name: crystal-governance
-version: 0.1.0
-description: "Read-only Crystal governance companion plugin: status, sample demo, audits, and triage wake checks."
+version: 0.2.0
+description: "Read-only Crystal governance companion plugin: status, demos, audits, health, and triage wake checks."
 author: "M3NT8L-One"
 kind: standalone
 platforms:

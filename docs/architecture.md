@@ -73,13 +73,19 @@ This prevents helper state from becoming profile truth.
 ## Review loop
 
 ```text
-read-only audit
-  -> quiet if clean
-  -> wake if medium/high findings exist
-  -> fix smallest scoped issue
-  -> rerun audit
+read-only audit + health
+  -> quiet if clean and HEALTHY
+  -> wake if medium/high findings or health degradation exist
+  -> review the smallest scoped issue
+  -> dry-run reconciliation when registry drift is involved
+  -> apply only after plan review; archive evidence and write a receipt
+  -> rerun checks
   -> close with evidence
 ```
 
-The scripts in this repo implement the read-only audit and wake gate portions.
-They do not call external APIs or mutate Crystal state.
+Audit, health, triage, and the Hermes companion plugin are read-only except for
+report output. The standalone reconciliation script is dry-run by default;
+explicit apply mode archives selected session evidence, updates the registry,
+and rolls back moved evidence plus the registry snapshot on handled I/O failure.
+It refuses normalized session-ID collisions, does not call external APIs, and
+does not irreversibly delete session evidence.
