@@ -1,16 +1,40 @@
-version: 1
+version: 2
+
 profile_scope:
-  default_rule: "Only user-facing profile sessions write Crystal state."
+  default_rule: "Only positively classified human-facing front doors write Crystal state."
+  fail_closed_when_platform_and_source_empty: true
   excluded_by_default:
-    - cron jobs
-    - background task workers
-    - scratch agents
+    - auxiliary model calls
+    - subagents
+    - cron and scheduler jobs
+    - Kanban workers
+    - maintenance and evaluation agents
     - background reviewers
-    - one-off maintenance workers
+    - scratch agents
+  required_exclusion_boundaries:
+    - pre and post turn hooks
+    - complete context engine lane
+  excluded_engine_behavior: "Use ordinary Hermes compression with no Crystal telemetry or filesystem writes."
+  verification: "Compare Crystal session directories and registry entries before and after real excluded-actor smokes."
+
 session_scope:
   required_session_doc: "CRYSTAL.md"
   required_meta: "meta.json"
   shared_mutable_doc: "forbidden"
+  raw_transcript_is_authoritative: true
+  crystal_may_delete_raw_transcript: false
+
+write_integrity:
+  lock_order:
+    - session document
+    - session metadata
+  registry_update: "locked read-modify-write"
+  metadata_update: "locked mutation helper"
+  shared_redaction_boundary:
+    - deterministic extraction
+    - model-authored operations
+  secret_only_authoritative_operation: "reject"
+
 sync_queue:
   file: "sync_queue.jsonl"
   allowed_kinds:

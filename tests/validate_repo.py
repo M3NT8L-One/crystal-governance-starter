@@ -139,6 +139,37 @@ def scan_generated_reports(report_dir: Path) -> list[str]:
     return errors
 
 
+def scan_governance_contracts() -> list[str]:
+    errors: list[str] = []
+    combined = "\n".join(
+        (ROOT / path).read_text(encoding="utf-8")
+        for path in (
+            "README.md",
+            "docs/architecture.md",
+            "docs/workers.md",
+            "docs/efficiency-and-savings.md",
+            "examples/crystal.workers.example.yaml",
+        )
+    )
+    required = (
+        "94.1%",
+        "about 30% net logical tokens saved",
+        "25–35%",
+        "default Hermes compression",
+        "meaningful_turns_since_attempt: 6",
+        "accumulated_tool_results_since_success: 12",
+        "cooldown_turns: 2",
+        "complete context-engine lane",
+        "raw Hermes transcript",
+    )
+    for text in required:
+        if text not in combined:
+            errors.append(f"missing current Crystal governance contract: {text}")
+    if "every_turn_or_two" in combined:
+        errors.append("stale Facet cadence every_turn_or_two is still present")
+    return errors
+
+
 class FakePluginContext:
     def __init__(self) -> None:
         self.commands: dict[str, tuple[object, object]] = {}
@@ -183,7 +214,12 @@ def run_plugin_demo(report_dir: Path) -> list[str]:
 
 
 def main() -> int:
-    errors = scan_static_files() + scan_python_code_flags() + scan_read_error_redaction()
+    errors = (
+        scan_static_files()
+        + scan_python_code_flags()
+        + scan_read_error_redaction()
+        + scan_governance_contracts()
+    )
     report_dir = ROOT / "reports/test"
     errors.extend(run_plugin_demo(report_dir))
     errors.extend(scan_generated_reports(report_dir))

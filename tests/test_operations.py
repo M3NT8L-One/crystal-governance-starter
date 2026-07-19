@@ -61,6 +61,44 @@ class HealthCheckTests(unittest.TestCase):
         self.assertEqual(report["status"], "DEGRADED")
         self.assertIn("excluded_actor_registry", report["degradations"])
 
+    def test_subagent_source_is_degraded(self) -> None:
+        registry_path = self.root / "profiles/default/registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        registry["sessions"]["session-alpha"].update(
+            {"actor_kind": "frontdoor", "platform": "subagent", "source": "subagent"}
+        )
+        registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
+
+        report = crystal_health_check.health_report(self.root, "default")
+
+        self.assertEqual(report["status"], "DEGRADED")
+        self.assertIn("excluded_actor_registry", report["degradations"])
+
+    def test_runtime_actor_kinds_are_degraded(self) -> None:
+        for actor_kind in ("auxiliary_model", "cron_job", "kanban_worker", "scratch_agent"):
+            with self.subTest(actor_kind=actor_kind):
+                registry_path = self.root / "profiles/default/registry.json"
+                registry = json.loads(registry_path.read_text(encoding="utf-8"))
+                registry["sessions"]["session-alpha"] = {"actor_kind": actor_kind}
+                registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
+
+                report = crystal_health_check.health_report(self.root, "default")
+
+                self.assertEqual(report["status"], "DEGRADED")
+                self.assertIn("excluded_actor_registry", report["degradations"])
+
+    def test_missing_actor_identity_is_degraded_but_not_excluded(self) -> None:
+        registry_path = self.root / "profiles/default/registry.json"
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        registry["sessions"]["session-alpha"] = {"topic_key": "unknown-source"}
+        registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
+
+        report = crystal_health_check.health_report(self.root, "default")
+
+        self.assertEqual(report["status"], "DEGRADED")
+        self.assertIn("unclassified_actor_registry", report["degradations"])
+        self.assertNotIn("excluded_actor_registry", report["degradations"])
+
     def test_source_health_reports_dirty_tree_and_missing_remote(self) -> None:
         source = Path(self.temp.name) / "source"
         source.mkdir()

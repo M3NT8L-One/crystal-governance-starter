@@ -6,11 +6,13 @@ It should be diff-aware and quiet:
 
 ```text
 if Crystal did not change since the last Gem Cutter tick:
-  exit quietly
+  exit with noop_unchanged
 elif the session is active:
   inspect, sync only urgent items, defer deep prune
+elif the doc is clean and under the idle target:
+  exit with idle_clean_noop (no model call)
 else:
-  prune, reconcile, and emit reviewable changes
+  prune, reconcile, sync, then seal the final post-sync hash
 ```
 
 ## Good triggers

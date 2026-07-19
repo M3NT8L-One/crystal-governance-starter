@@ -12,12 +12,19 @@ from pathlib import Path
 from typing import Any
 
 EXCLUDED_ACTOR_KINDS = {
+    "auxiliary_model",
     "background_reviewer",
     "background_worker",
     "cron",
+    "cron_job",
+    "evaluation",
     "internal",
+    "kanban_worker",
+    "maintenance",
     "scheduler",
     "scratch",
+    "scratch_agent",
+    "subagent",
 }
 
 
@@ -36,8 +43,17 @@ def session_identifier_collisions(sessions: dict[str, Any]) -> dict[str, int]:
 
 def inferred_actor_kind(entry: dict[str, Any]) -> str:
     aliases = {
+        "aux": "auxiliary_model",
+        "auxiliary_model": "auxiliary_model",
         "cron": "cron",
+        "cron_job": "cron_job",
         "scheduler": "scheduler",
+        "subagent": "subagent",
+        "kanban": "kanban_worker",
+        "kanban_worker": "kanban_worker",
+        "maintenance": "maintenance",
+        "eval": "evaluation",
+        "evaluation": "evaluation",
         "background": "background_worker",
         "background_worker": "background_worker",
         "worker": "background_worker",
@@ -45,13 +61,16 @@ def inferred_actor_kind(entry: dict[str, Any]) -> str:
         "reviewer": "background_reviewer",
         "background_reviewer": "background_reviewer",
         "scratch": "scratch",
+        "scratch_agent": "scratch_agent",
         "internal": "internal",
     }
+    observed = False
     for key in ("platform", "source", "session_type"):
         value = re.sub(r"[^a-z0-9]+", "_", str(entry.get(key) or "").lower()).strip("_")
+        observed = observed or bool(value)
         if value in aliases:
             return aliases[value]
-    return "frontdoor"
+    return "frontdoor" if observed else "unknown"
 
 
 def actor_kind_for_entry(entry: dict[str, Any]) -> str:
@@ -178,12 +197,15 @@ def _state_checks(
     )
 
     excluded: list[str] = []
+    unclassified: list[str] = []
     retired: list[str] = []
     for session_id, raw_entry in sorted(sessions.items()):
         safe_id = safe_identifier(str(session_id), "session")
         if not isinstance(raw_entry, dict):
             excluded.append(safe_id)
             continue
+        if actor_kind_for_entry(raw_entry) == "unknown":
+            unclassified.append(safe_id)
         if entry_is_excluded(raw_entry):
             excluded.append(safe_id)
         if raw_entry.get("retired") is True or str(raw_entry.get("status") or "").lower() == "retired":
@@ -193,6 +215,13 @@ def _state_checks(
         name="excluded_actor_registry",
         ok=not excluded,
         detail={"count": len(excluded), "sessions": excluded[:25]},
+        severity="warning",
+    )
+    _check(
+        checks,
+        name="unclassified_actor_registry",
+        ok=not unclassified,
+        detail={"count": len(unclassified), "sessions": unclassified[:25]},
         severity="warning",
     )
 

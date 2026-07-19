@@ -19,6 +19,10 @@ The profile document holds durable profile-wide continuity. Each session keeps
 its own local working context. Cross-session facts move through a small sync
 queue and review policy instead of direct doc-to-doc copying.
 
+The raw Hermes transcript remains authoritative historical evidence. Crystal is
+a bounded working-context layer, not a replacement transcript or permanent
+memory system.
+
 ## Why governance is needed
 
 Living context can drift in subtle ways:
@@ -47,28 +51,56 @@ Governance keeps those failure modes boring and visible.
 
 ```text
 Facet
-  fast prefer-recent hot-section merge; Hot Delta is a rolling replace window
+  stateful small-model operations; default 6 turns / 12 tools / 2-turn cooldown
 
 Crystallizer
   pressure compact at upper watermark, or earlier quality hygiene (turn/quality gates)
 
 Gem Cutter
-  diff-aware governance prune, sync, and conflict review
+  diff-aware idle governance; spend only when size or quality pressure exists
 ```
 
 Facet and Crystallizer keep the session useful while work is active. Gem Cutter
-should be quieter: wake only when Crystal changed, prefer idle windows for deep
-prune, and emit reviewable changes.
+should be quieter: check only after Crystal changed, prefer idle windows, and
+spend a model call only when size or quality pressure exists.
 
 See `workers.md` for worker inputs, triggers, prompt contracts, and setup.
 
 ## Scope rule
 
-Attach Crystal governance to the user-facing profile that owns durable
-continuity. Keep auxiliary workers, cron jobs, review agents, and scratch
-sessions outside the Crystal write path unless explicitly enabled.
+Enable Crystal only for positively classified human-facing front doors. Missing
+platform and source identity fails closed. Keep subagents, auxiliary model
+calls, cron/scheduler runs, Kanban workers, maintenance, evaluation, review, and
+scratch sessions outside Crystal unless a reviewed policy explicitly includes
+them.
 
-This prevents helper state from becoming profile truth.
+There are two write boundaries:
+
+1. pre/post-turn hooks must not create Crystal state for excluded actors;
+2. the complete Crystal context-engine lane must delegate excluded actors to
+   ordinary Hermes compression without Crystal telemetry or filesystem writes.
+
+Method routing alone is insufficient if the wrapper and built-in compressor
+split thresholds, token counters, post-compression latches, effectiveness state,
+or session binding. Synchronize that state in both directions for excluded
+actors. Prove exclusion with real actor smokes and before/after directory plus
+registry comparisons; a correct subagent response does not prove zero side
+effects.
+
+## Write integrity
+
+- Lock the session document before metadata; never reverse the order.
+- Update registries through one locked read-modify-write transaction.
+- Mutate metadata under a lock rather than saving stale snapshots.
+- On successful Facet work, clear only reasons and tool pressure represented by
+  that decision so concurrent turns remain pending.
+- Apply the same redaction boundary to deterministic extraction and
+  model-authored operations. Reject secret-only authoritative operations rather
+  than erasing prior valid state.
+- Test heterogeneous writers, such as context rendering plus a maintainer tick.
+
+See `workers.md`, `privacy-and-redaction.md`, and `efficiency-and-savings.md` for the
+current starter contracts.
 
 ## Review loop
 

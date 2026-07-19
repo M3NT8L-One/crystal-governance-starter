@@ -1,72 +1,99 @@
 # Example Crystal worker settings.
 # This is a starter contract, not a complete runtime implementation.
-# Aligned with Crystal v0 Facet prefer-recent + Crystallizer pressure/hygiene (2026-07).
+# It intentionally uses no provider, model, route, or private runtime values.
 
 crystal_workers:
   state_root: /path/to/crystal-state
   enabled_profiles:
     - default
 
-  facet:
-    purpose: fast hot-section patching with prefer-recent supersede
-    cadence: every_turn_or_two
-    skip_if_no_meaningful_delta: true
-    update_mode: hot_sections_only
-    merge_mode: prefer_recent_supersede
-    hot_delta_mode: replace_rolling_window
+  actor_scope:
+    positive_frontdoor_classification_required: true
+    fail_closed_when_platform_and_source_empty: true
+    exclude:
+      - auxiliary_model
+      - subagent
+      - cron
+      - scheduler
+      - kanban_worker
+      - maintenance
+      - evaluation
+      - review
+      - scratch
+    gate_boundaries:
+      - pre_and_post_turn_hooks
+      - complete_context_engine_lane
+    excluded_engine_behavior: builtin_compressor_without_crystal_writes
+
+  deterministic_tick:
+    cadence: every_meaningful_frontdoor_turn
+    redact_before_write: true
     raw_tool_payloads: unavailable
     tool_context: sanitized_summaries
-    scrub:
-      - secret_like_paths   # e.g. SSH keys, auth/credential files, .env
+
+  facet:
+    purpose: stateful authoritative hot-section refinement
+    meaningful_turns_since_attempt: 6
+    accumulated_tool_results_since_success: 12
+    cooldown_turns: 2
+    also_due_on:
+      - lifecycle_transition
+      - quality_reason
+    skip_if_no_meaningful_delta: true
+    output_schema: operations
+    operation_fields: [section, action, bullets]
+    section_actions:
+      snapshot_sections:
+        sections:
+          - Current Objective
+          - Current Working State
+          - Active Open Loops
+          - Recent Useful Context / Hot Delta
+        allowed: [replace, clear]
+      durable_sections:
+        sections:
+          - Important Constraints
+          - Decisions and Rationale
+          - Relevant Files / Artifacts / Handles
+        allowed: [merge]
+      unknown_or_stale_sections:
+        allowed: []
+    empty_or_invalid_operations_are_success: false
+    success_clears_only_decision_scoped_pending_state: true
+    redaction:
+      - secret_like_values
+      - private_paths
+      - raw_payloads_and_blobs
       - system_prompt_echoes
       - junk_or_mangled_handles
-    hot_sections:
-      - Current Objective
-      - Current Working State
-      - Important Constraints
-      - Decisions and Rationale
-      - Active Open Loops
-      - Relevant Files / Artifacts / Handles
-      - Recent Useful Context / Hot Delta
-    section_caps_example:
-      Current Objective: 6
-      Current Working State: 10
-      Important Constraints: 10
-      Decisions and Rationale: 10
-      Active Open Loops: 8
-      Relevant Files / Artifacts / Handles: 16
-      Recent Useful Context / Hot Delta: 6
-    output: structured_section_patch
+    secret_only_authoritative_operation: reject
 
   crystallizer:
     purpose: whole-session-doc rewrite (pressure compact or earlier quality hygiene)
     trigger:
-      - session_doc_budget_percent >= 0.75          # pressure
-      - turns_since_medium_compact >= 12            # turn cadence / hygiene
-      - quality hygiene after hygiene_min_turns (6):
-          - dupe_density_or_near_duplicate_stacks
-          - section_counts_near_facet_caps_with_dups
-          - junk_or_secret_handles
-          - system_prompt_memory_review_echoes
+      - session_doc_budget_percent >= 0.75
+      - turns_since_medium_compact >= 12
+      - quality_hygiene_after_min_turns
     pressure_target_budget_percent: 0.50
     hygiene_soft_target_fraction_of_current_doc: 0.62
     hygiene_min_turns: 6
+    preserve_last_completed_doc_on_failure: true
     realtime_steering: false
-    output: revised_session_crystal_markdown_plus_status
-    status_fields_example:
-      - compact_reason   # pressure | hygiene
-      - usage_tokens
 
   gem_cutter:
-    purpose: diff-aware governance prune and sync
+    purpose: diff-aware idle governance prune and sync
     cadence: 30m
     wake_if:
       - profile_or_session_crystal_hash_changed_since_last_tick
-    no_op_if:
+    no_model_if:
       - no_crystal_diff_since_last_tick
       - active_session_not_idle_enough_for_deep_prune
+      - changed_but_clean_and_under_idle_target
+    model_work_if:
+      - changed_and_idle_and_over_idle_target
+      - changed_and_idle_and_quality_flags_present
     idle_deep_prune_after_minutes: 60
-    active_session_behavior: inspect_only_or_defer_deep_prune
+    seal_hash_after_rewrite_and_profile_sync: true
     allowed_actions:
       - deep_prune_stale_context
       - trim_redundant_or_superseded_notes
@@ -80,11 +107,33 @@ crystal_workers:
       - steer_live_agent_behavior
 
   concurrency:
-    single_writer_per_session_doc: true
+    lock_order: [session_document, session_metadata]
+    registry_locked_read_modify_write: true
+    metadata_mutation_helper_required: true
+    heterogeneous_writer_tests_required: true
     main_request_reads_last_completed_doc: true
-    lock_stale_seconds: 300
+    lock_stale_seconds: 900
+
+  excluded_compressor_state_sync:
+    bidirectional: true
+    fields:
+      - budgets_and_thresholds
+      - provider_usage
+      - post_compression_latches
+      - effectiveness_and_cooldown
+      - compression_count_and_errors
+      - context_probe_state
+      - session_binding
 
   render:
     active_fuller_fraction: 0.60
     steady_fraction: 0.40
     idle_clean_fraction: 0.25
+
+  savings_reporting:
+    distinguish:
+      - gross_history_reduction
+      - post_compression_total_request_reduction
+      - full_day_net_logical_token_reduction
+      - billable_equivalent_or_dollar_reduction
+    never_report_history_ratio_as_daily_savings: true

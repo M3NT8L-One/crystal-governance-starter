@@ -11,16 +11,17 @@ runtime still needs a context plugin or sidecar that runs the workers.
 
 | Worker | Tier | Main job | Normal trigger | Writes |
 |---|---|---|---|---|
-| Facet | fast/small | Prefer-recent hot-section merge; rolling Hot Delta | Every turn or two when there is meaningful delta | Session `CRYSTAL.md` |
+| Facet | fast/small | Authoritative hot-section operations; prefer-recent working state | 6 meaningful turns since attempt, 12 accumulated tools since success, or lifecycle/quality reason; 2-turn cooldown | Session `CRYSTAL.md` |
 | Crystallizer | medium | Whole-doc rewrite: pressure compact **or** earlier quality hygiene | Upper watermark, every ~12 turns, or quality hygiene after ~6 turns | Session `CRYSTAL.md` |
-| Gem Cutter | strong/governance | Prune, reconcile, and sync after meaningful diffs | Quiet cadence, usually after idle | `PROFILE_CRYSTAL.md`, session docs, sync/review packet |
+| Gem Cutter | strong/governance | Prune, reconcile, and sync after meaningful diffs | Quiet cadence; idle plus diff/pressure gate | `PROFILE_CRYSTAL.md`, session docs, sync/review packet |
 
 ## Data Flow
 
 ```text
 user-facing turn completes
   -> deterministic extraction finds handles, decisions, constraints, open loops
-  -> Facet patches hot sections (prefer-recent supersede; Hot Delta = replace window)
+  -> deterministic tick merges bounded, redacted state
+  -> Facet runs only when cadence, tool pressure, lifecycle, or quality is due
   -> Crystallizer rewrites the session doc when pressure or hygiene is due
   -> Gem Cutter wakes on cadence, checks hashes, and usually exits quietly
   -> next request reads Profile Crystal + Session Crystal + hot tail
@@ -44,10 +45,20 @@ Recommended inputs:
 - sanitized tool summaries, not raw tool payloads;
 - source/evidence handles.
 
+Facet receives a frozen decision snapshot. Cadence means meaningful turns
+**since the last attempt**. Tool pressure means accumulated results **since the
+last successful attempt**. Neither is a lifetime sticky trigger.
+
 Rules:
 
-- Patch only hot sections such as objective, working state, constraints,
-  decisions, open loops, handles, and hot delta.
+- Return authoritative operations `{section, action, bullets}` rather than an
+  unconstrained replacement document.
+- Snapshot sections—objective, working state, open loops, and Hot Delta—allow
+  `replace` or `clear`.
+- Use `clear` only with explicit evidence that the snapshot lane is empty or
+  completed; omitted output is not a clear instruction.
+- Durable sections—constraints, decisions, and handles—allow `merge` only.
+- Reject unknown sections and stale/drop-zone writes.
 - **Prefer-recent supersede:** newer bullets win over near-duplicate rephrases
   (do not keep five variants of the same objective).
 - **Hot Delta is a rolling window:** full refresh from the newest turn lines,
@@ -60,16 +71,24 @@ Rules:
   mangled/noise handles.
 - Return compact structured status, not chat prose.
 - Escalate to Crystallizer when the patch is too complex or quality debt piles up.
+- A valid idempotent operation is success even when bytes do not change. Empty
+  or invalid operations are failure and must retain pending reasons/tool pressure.
+- If another turn queues work while Facet is running, clear only the decision's
+  reasons and subtract only its represented tool count.
 
 Typical trigger:
 
 ```yaml
 facet:
-  cadence: every_turn_or_two
+  meaningful_turns_since_attempt: 6
+  accumulated_tool_results_since_success: 12
+  cooldown_turns: 2
+  also_due_on: [lifecycle_transition, quality_reason]
   skip_if_no_meaningful_delta: true
-  update_mode: hot_sections_only
-  merge_mode: prefer_recent_supersede
-  hot_delta_mode: replace_rolling_window
+  output_schema: authoritative_operations
+  snapshot_actions: [replace, clear]
+  durable_actions: [merge]
+  unknown_section_action: reject
   raw_tool_payloads: unavailable
   tool_context: sanitized_summaries
   section_caps_example:
@@ -153,10 +172,15 @@ Rules:
 - Exit quietly when nothing changed.
 - Defer deep prune while the session is active unless safety or budget requires
   action.
+- When changed and idle, spend a model call only if the document exceeds the
+  idle target or quality flags are present. A changed, clean, small document is
+  a zero-model `idle_clean_noop`.
 - Reconcile only related sessions.
 - Produce reviewable prune/sync/promote output.
 - Do not delete raw transcript or evidence.
 - Do not silently write permanent memory, facts, or skills.
+- Seal the document hash after rewrite and again after profile/hub sync so the
+  next unchanged tick is a true `noop_unchanged`.
 
 Typical trigger:
 
@@ -168,6 +192,10 @@ gem_cutter:
   no_op_if:
     - no_crystal_diff_since_last_tick
     - active_session_not_idle_enough_for_deep_prune
+    - changed_but_clean_and_under_idle_target
+  model_work_if:
+    - changed_and_idle_and_over_idle_target
+    - changed_and_idle_and_quality_flags_present
   idle_deep_prune_after_minutes: 60
 ```
 
@@ -177,7 +205,8 @@ gem_cutter:
 2. Create one `sessions/<session_id>/CRYSTAL.md` per active session.
 3. Track `meta.json` with last processed turn, doc hash, token estimate,
    activity state, render state, turns since medium compact, and worker locks.
-4. Run Facet after successful user-facing turns (prefer-recent + Hot Delta replace).
+4. Run deterministic extraction after meaningful user-facing turns; queue Facet
+   through stateful 6/12/2 cadence, accumulated tools, lifecycle, and quality.
 5. Run Crystallizer on pressure **or** turn/quality hygiene triggers.
 6. Run Gem Cutter from a quiet scheduled tick.
 7. Render only completed Crystal state into the next request.
@@ -192,15 +221,15 @@ routes for your runtime.
 ### Facet Contract
 
 ```text
-You are Facet, Crystal's fast live maintainer. Merge the new turn into selected
-CRYSTAL.md hot sections. Prefer the newest accurate statement; supersede
-near-duplicate rephrases instead of stacking them. Hot Delta must be a short
-rolling window of the newest user/assistant lines (full refresh, not archive).
-Use only compact user/assistant text, deterministic delta, sanitized tool
-summaries, and evidence handles. Drop secret paths, system memory-review
-prompts, and junk handles. Return structured section patches only. Do not paste
-raw tool output, logs, diffs, tables, or secrets. Escalate if the update is too
-complex.
+You are Facet, Crystal's fast live maintainer. Return authoritative operations
+with section, action, and bullets. Use replace/clear only for snapshot sections
+(objective, working state, open loops, Hot Delta) and merge only for durable
+sections (constraints, decisions, handles). Prefer the newest accurate state;
+supersede near-duplicate rephrases instead of stacking them. Use only compact
+user/assistant text, deterministic delta, sanitized tool summaries, and evidence
+handles. Never return raw tool output, logs, diffs, tables, secrets, unknown
+sections, or stale/drop-zone writes. Omit a section when evidence is
+insufficient. Escalate if the update is too complex.
 ```
 
 ### Crystallizer Contract

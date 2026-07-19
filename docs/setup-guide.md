@@ -56,13 +56,25 @@ maintenance debt (`DEGRADED`). See `operations-health-and-reconcile.md`.
 
 Read `docs/workers.md` before wiring live maintenance. The short version:
 
-- Facet patches hot session sections after meaningful turns (prefer-recent supersede; rolling Hot Delta).
+- A deterministic tick patches bounded, redacted state after meaningful turns.
+- Facet's small-model pass is stateful by default: six meaningful turns since attempt,
+  twelve accumulated tool results since success, or a lifecycle/quality reason,
+  with a two-turn cooldown.
 - Crystallizer rewrites on pressure (~75%→~50%) or earlier quality hygiene (turn/quality gates).
 - Gem Cutter runs from a quiet cadence and only does meaningful work when
-  Crystal changed and the session is suitable for cleanup.
+  Crystal changed, the session is idle, and size or quality pressure exists.
 
 Use `examples/crystal.workers.example.yaml` as a starting contract for routes,
 triggers, locks, and render targets.
+
+Before enabling a live integration, positively classify front-door actors and
+gate both hooks and the complete context-engine lane. Real subagent, cron, and
+worker smokes must create no Crystal directory or registry entry. Preserve raw
+Hermes transcripts as authoritative evidence.
+
+Read `docs/efficiency-and-savings.md` before publishing efficiency estimates. Short
+sessions below the first compression boundary may see no savings or slight
+maintenance overhead.
 
 ## 6. Dry-run registry reconciliation
 
@@ -75,8 +87,10 @@ python3 scripts/crystal_registry_reconcile.py \
   --profile default
 ```
 
-Do not add `--apply` until you have reviewed candidates and protected any active
-sessions. Apply mode archives session evidence and writes a restoration receipt.
+The dry run can include stale registered entries as well as orphan directories.
+Protect every non-target candidate, rerun the dry run, and require one exact
+target before `--apply`. Apply mode archives session evidence and writes a
+restoration receipt; never use bare deletion.
 
 ## 7. Wire a quiet cron
 
