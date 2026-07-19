@@ -1,131 +1,114 @@
-# Crystal Governance Starter
+<p align="center">
+  <img src="assets/crystal-governance-hero.svg" alt="Crystal Governance Starter: keep long Hermes sessions on track" width="100%">
+</p>
 
-A sanitized starter kit for governing Crystal-style living context docs.
+<h1 align="center">Crystal Governance Starter</h1>
 
-This repo is intentionally generic. It shows the pattern without shipping
-private session transcripts, profile state, local paths, credentials, runtime
-databases, or operator-specific rules.
+<p align="center">
+  Turn long Hermes sessions into bounded living context, cleaner handoffs, and measurable efficiency gains.
+</p>
 
-Broader Hermes memory, skill, cron, and Kanban governance stays in the separate
-[Hermes Governance Starter](https://github.com/M3NT8L-One/hermes-governance-starter).
-This repository is dedicated to Crystal living-context governance and its
-efficiency model.
+<p align="center">
+  <a href="https://github.com/M3NT8L-One/crystal-governance-starter/actions/workflows/validate.yml"><img src="https://github.com/M3NT8L-One/crystal-governance-starter/actions/workflows/validate.yml/badge.svg" alt="Validation status"></a>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10 or newer">
+  <img src="https://img.shields.io/badge/dependencies-stdlib%20only-a78bfa" alt="Python standard library only">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22d3ee" alt="MIT license"></a>
+</p>
 
-## What this gives you
+Long sessions create a strange problem: your agent has seen more, but the useful parts are harder to find inside a growing transcript. Crystal keeps a small living context beside the conversation so the current objective, constraints, decisions, open loops, and handoff state stay visible.
 
-- **Profile crystal governance**: keep `PROFILE_CRYSTAL.md` small, scoped, and reviewable.
-- **Session crystal governance**: keep per-session `CRYSTAL.md` docs useful without letting raw transcript noise become durable context.
-- **Sync queue review**: route only high-value cross-session decisions, constraints, handles, handoffs, conflicts, and closeouts.
-- **Front-door isolation**: enable Crystal only for positively classified human-facing sessions and keep background actors out of hooks and the complete context-engine lane.
-- **Worker contracts**: document stateful Facet cadence, authoritative section operations, Crystallizer pressure/hygiene, and Gem Cutter spend gates.
-- **Token economics**: estimate history, total-request, full-day net, and billable-equivalent savings without turning a boundary ratio into a daily claim.
-- **Hermes plugin scaffold**: expose read-only audit, health, and triage checks through `hermes crystal-governance ...`.
-- **Operational health**: classify registry/state/source checks as `HEALTHY`, `DEGRADED`, or `UNHEALTHY` with count-only source metadata.
-- **Reversible registry reconciliation**: dry-run drift plans, collision refusal, explicit apply, rollback, timestamped archives, and restoration receipts.
-- **Pre-share validation**: scan this repo and generated reports for secrets, private paths, personal markers, and runtime-state leakage.
+This repository is the public, sanitized governance kit for that pattern. It includes the checks, worker contracts, safety boundaries, and accounting needed to run Crystal without turning it into another pile of context.
 
-## Mental model
+## What you gain
+
+| | Gain |
+|---|---|
+| 🧭 | **Better continuity.** Long sessions keep their objective, working state, decisions, and open loops close at hand. |
+| 🪶 | **Less transcript drag.** After a compression boundary, compact living context can replace a much larger slice of repeated history. |
+| 🔁 | **Cleaner handoffs.** Profile and session crystals separate local work from the small set of facts that should cross sessions. |
+| 🛡️ | **Safer boundaries.** Background workers, subagents, cron runs, and scratch sessions stay out of the human-facing context lane. |
+| 💤 | **Quiet maintenance.** Facet, Crystallizer, and Gem Cutter work on cadence and evidence instead of waking a model for every turn. |
+
+## The gains, without the sales pitch
+
+These figures come from one measured busy-session calibration and are useful for planning, not promises:
+
+| Figure | What it means |
+|---|---|
+| **about 30%** | Net logical tokens saved as a planning estimate for two long, genuinely busy front-door sessions |
+| **25–35%** | A normal busy-day range under the measured workload shape |
+| **94.1%** | Reduction of the replaceable history slice across three Crystal boundaries, not total daily savings |
+| **near 0%** | Expected gain for short sessions below the first boundary; maintenance can make them slightly negative |
+
+Default Hermes compression still matters. So do the fixed system and tool prompt, calls made before the first boundary, Crystal worker maintenance, provider caching, and billing mode. Logical-token savings are not automatically billable or dollar savings.
+
+Read [`docs/efficiency-and-savings.md`](docs/efficiency-and-savings.md) for the four accounting layers, formulas, assumptions, telemetry, and cache caveats before quoting these numbers elsewhere.
+
+## How Crystal fits
 
 ```text
-Profile Crystal    = profile-wide continuity and cross-session decisions
-Session Crystal    = local working context for one conversation
-Sync queue         = structured proposals crossing session boundaries
-Facet              = stateful small-model refinement (6 turns / 12 tools / 2-turn cooldown)
-Crystallizer       = pressure compact (~75%→~50%) or earlier quality hygiene
-Gem Cutter         = changed + idle + size/quality-gated governance prune and sync
-Governance         = scope, hygiene, redaction, review, and cleanup
+raw Hermes transcript
+        ↓
+deterministic tick keeps the hot state current
+        ↓
+Facet refines bounded sections when cadence or evidence says it is due
+        ↓
+Crystallizer compacts on pressure or quality debt
+        ↓
+Gem Cutter reviews changed, idle state and usually stays quiet
+        ↓
+next request gets Profile Crystal + Session Crystal + a small hot tail
 ```
 
-The goal is not to remember everything.
+A profile crystal carries profile-wide continuity and reviewed cross-session decisions. A session crystal holds the working context for one conversation. The sync queue is a proposal lane between them, not an automatic promotion path.
 
-The goal is controlled continuity: bounded living docs, clean handoffs,
-reviewed cross-session promotion, and no accidental publication of private
-runtime material.
+## What is included
 
-## Repository layout
+- Profile and session scope rules
+- Stateful 6/12/2 Facet cadence and authoritative section operations
+- Crystallizer pressure and quality-hygiene contracts
+- Gem Cutter spend gates, no-op paths, and hash sealing
+- Front-door classification and complete context-engine lane isolation
+- Shared redaction, bounded writes, and concurrency guidance
+- Read-only audit, health, and triage tools
+- Dry-run-first registry reconciliation with archives and restoration receipts
+- A read-only Hermes companion plugin scaffold
+- CI, fixtures, tests, and pre-share privacy validation
 
-```text
-docs/             Architecture, setup, and operating model
-policies/         Example Crystal scope, redaction, and stale-pattern policies
-scripts/          Generic audit, health, triage, and reconcile scripts
-hermes_plugin/    Read-only Hermes companion plugin scaffold
-cron/             Example quiet Gem Cutter governance cron
-skills/           Starter skill for Crystal governance workflows
-examples/         Tiny safe Crystal home and transcript fixtures
-.github/          CI validation workflow
-```
+Broader memory, skill, cron, and Kanban governance lives in the companion [Hermes Governance Starter](https://github.com/M3NT8L-One/hermes-governance-starter).
 
-## Quick start
+## Try it safely
 
-Requires Python 3.10 or newer. No third-party Python packages are required.
+You need Python 3.10 or newer. The starter uses only the Python standard library.
 
 ```bash
 git clone https://github.com/M3NT8L-One/crystal-governance-starter.git
 cd crystal-governance-starter
-python3 scripts/run_crystal_checks.py --root examples/sample-crystal-home --out reports/demo
-python3 scripts/crystal_registry_reconcile.py --root examples/sample-crystal-home
-```
-
-You should see JSON and Markdown reports under `reports/demo/`. Review
-generated reports before sharing them. Absolute root/report paths are redacted
-by default unless you pass `--include-absolute-paths`.
-
-## Reproduce the pattern in your Crystal setup
-
-1. Read `docs/setup-guide.md`.
-2. Read `docs/workers.md` for Facet, Crystallizer, and Gem Cutter setup.
-3. Read `docs/efficiency-and-savings.md` before quoting efficiency numbers.
-4. Read `docs/operations-health-and-reconcile.md` for health and reversible registry maintenance.
-5. Read `docs/hermes-plugin.md` if you want a native Hermes command surface.
-6. Copy or adapt `skills/devops/crystal-governance-starter/SKILL.md` into your local skill library.
-7. Copy or adapt the policy examples under `policies/crystal-governance/`.
-8. Run the read-only checks against `examples/sample-crystal-home`.
-9. Run the checks against a copied or staged Crystal state directory.
-10. Only then point the checks at live Crystal state.
-
-## Hermes plugin smoke path
-
-From the repo root:
-
-```bash
-python3 scripts/link_hermes_plugin.py
-hermes plugins enable crystal-governance
-hermes crystal-governance status
-hermes crystal-governance demo --out reports/plugin-demo
-```
-
-The plugin is read-only. It makes the starter easy to inspect from an agent,
-but it does not replace the live `crystal-v0` context-engine plugin. The
-standalone registry reconciliation script is dry-run by default and is not
-exposed through the plugin.
-
-## Potential token savings
-
-Crystal mainly reduces repeated conversation-history input after a long session crosses a compression boundary. In one measured busy-session calibration, Crystal reduced the replaceable history slice by **94.1%** across three boundaries. That is not a daily savings figure: default Hermes also compresses, while the fixed system/tool prompt, early calls, maintenance workers, and provider cache semantics remain.
-
-For two long, genuinely busy front-door sessions, the defensible planning estimate is:
-
-- **about 30% net logical tokens saved** as a single planning number;
-- **25–35%** as a normal busy-day range;
-- potentially **35–45%** for very long, tool-heavy sessions;
-- near **0%**, or slight overhead, for short sessions below the first boundary.
-
-Logical-token savings are not automatically billable or dollar savings. See [`docs/efficiency-and-savings.md`](docs/efficiency-and-savings.md) for the four accounting layers, formulas, assumptions, telemetry, and cache caveats.
-
-## Using with real Crystal state
-
-Do **not** point this at live Crystal state until you understand what it reads
-and writes. Audit, health, triage, and plugin commands are read-only except for
-their report output. `crystal_registry_reconcile.py` is dry-run by default;
-`--apply` moves selected state into an archive and updates the registry.
-
-```bash
 python3 scripts/run_crystal_checks.py \
-  --root /path/to/crystal-state \
-  --out reports/local-crystal
+  --root examples/sample-crystal-home \
+  --out reports/demo
+python3 scripts/crystal_registry_reconcile.py \
+  --root examples/sample-crystal-home
+python3 tests/validate_repo.py
+python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Expected inspected shape:
+The sample audit writes JSON and Markdown reports to `reports/demo/`. The reconciliation command is dry-run by default. It shows what would move without changing the fixture.
+
+Review generated reports before sharing them. Absolute roots and report paths are redacted unless you explicitly pass `--include-absolute-paths`.
+
+## Move from sample data to real state
+
+1. Read [`docs/setup-guide.md`](docs/setup-guide.md).
+2. Read [`docs/workers.md`](docs/workers.md) for Facet, Crystallizer, and Gem Cutter.
+3. Read the [efficiency guide](docs/efficiency-and-savings.md) before quoting savings.
+4. Read [`docs/operations-health-and-reconcile.md`](docs/operations-health-and-reconcile.md) before registry maintenance.
+5. Adapt the starter skill and policy examples.
+6. Run the checks against the included sample.
+7. Run them again against a copied or staged Crystal state directory.
+8. Point read-only checks at live state only after you understand every path they inspect.
+
+The expected state shape is:
 
 ```text
 profiles/<profile>/PROFILE_CRYSTAL.md
@@ -135,42 +118,64 @@ profiles/<profile>/sessions/<session_id>/meta.json
 profiles/<profile>/sync_queue.jsonl
 ```
 
-## Safety defaults
+Audit, health, triage, and plugin commands are read-only except for report output. `crystal_registry_reconcile.py --apply` is different: it archives selected state and updates the registry. Review the dry-run plan first.
 
-This starter intentionally excludes:
+<details>
+<summary><strong>Optional Hermes plugin smoke path</strong></summary>
 
-- credentials, tokens, OAuth files, `.env`, API keys
-- private profile content, private memory, and raw transcripts
-- sessions, logs, local databases, caches, and runtime lock files
-- local absolute paths and machine-specific handles
-- operator-specific business rules or personal project names
-- any authority to perform irreversible or external side effects
+```bash
+python3 scripts/link_hermes_plugin.py
+hermes plugins enable crystal-governance
+hermes crystal-governance status
+hermes crystal-governance demo --out reports/plugin-demo
+```
 
-Governance should make living context safer and more maintainable. It should
-not become an unreviewed promotion path for private context.
+The companion plugin exposes read-only starter checks. It does not replace a live Crystal context-engine plugin, and it does not expose reconciliation.
 
-## Core pattern
+</details>
 
-1. A quiet cron or manual check runs deterministic read-only audit and health checks.
-2. If audit is clean and health is `HEALTHY`, it stays silent.
-3. If findings exceed a threshold or health degrades, triage prints a short wake summary.
-4. Registry drift is dry-run planned before any change; apply archives evidence and writes a receipt.
-5. Findings are fixed, verified, and closed with evidence.
-6. Crystal docs stay useful because temporary reports, tool noise, and local
-   runtime details are not promoted by accident.
+## Quiet by design
 
-## Validation
+A healthy check should be boring:
+
+```text
+read-only audit + health check
+        ├─ clean and HEALTHY → say nothing
+        └─ evidence crosses a threshold → print a short wake summary
+                                           ↓
+                              review → fix → verify → close
+```
+
+Registry drift follows a separate path: dry-run plan first, explicit apply second, archive and receipt every time.
+
+## Safety is part of the design
+
+This repository does not ship credentials, raw transcripts, private memory, local paths, runtime databases, locks, personal project names, or operator-specific authority. It also grants no permission to perform external or irreversible actions.
+
+Crystal should improve continuity without becoming an unreviewed promotion path for private context.
+
+## Find your way around
+
+| Path | What is there |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | The complete context and governance design |
+| [`docs/workers.md`](docs/workers.md) | Facet, Crystallizer, and Gem Cutter contracts |
+| [`docs/profile-session-scope.md`](docs/profile-session-scope.md) | What belongs at profile and session scope |
+| [`docs/privacy-and-redaction.md`](docs/privacy-and-redaction.md) | Shared redaction and write-boundary rules |
+| [`docs/efficiency-and-savings.md`](docs/efficiency-and-savings.md) | Token accounting and calibrated planning ranges |
+| [`docs/operations-health-and-reconcile.md`](docs/operations-health-and-reconcile.md) | Health states and reversible registry maintenance |
+| [`docs/hermes-plugin.md`](docs/hermes-plugin.md) | The read-only companion plugin |
+| `examples/` | Safe sample state and transcript fixtures |
+
+## Validate before you adapt
 
 ```bash
 python3 tests/validate_repo.py
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-The validator exercises the sample Crystal checks, verifies the current 6/12/2
-scope and efficiency contracts, and scans this repository for obvious
-secret-like strings, private absolute paths, personal markers, and
-generated-report path leaks. The operation tests verify front-door actor
-classification, health classification, quiet triage, dry-run safety, protected
-sessions, archival movement, and restoration receipts.
+The validator checks the current governance and efficiency contracts, runs the sample plugin path, and scans for secret-like strings, private paths, personal markers, and report leakage. The operation tests cover actor classification, health and triage behavior, dry-run safety, protected sessions, archival movement, and restoration receipts.
 
-See `docs/architecture.md` and `docs/workers.md` for the full setup.
+---
+
+Built for people who want long [Hermes Agent](https://hermes-agent.nousresearch.com/docs) sessions to stay coherent without pretending context is free.
