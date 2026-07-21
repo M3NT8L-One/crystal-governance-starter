@@ -8,6 +8,7 @@
 
 - Only user-facing profile sessions write Crystal state by default.
 - Cross-session imports require topic, handle, handoff, conflict, or operator relevance.
+- Profile-wide current state follows the newest session activity; older durable claims require independent session support.
 
 ## Active Session Handles
 

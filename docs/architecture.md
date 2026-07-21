@@ -31,6 +31,7 @@ Living context can drift in subtle ways:
 - local file paths or private handles leak into a shareable surface;
 - background worker status gets promoted as profile truth;
 - one session overwrites another session's working state;
+- a stale profile hub looks trustworthy because core runtime checks are green;
 - stale "currently" and "for now" claims survive after the run ends;
 - Facet stacks near-duplicate objectives/open loops while the doc is still small;
 - Hot Delta freezes early turns instead of rolling with the conversation;
@@ -74,6 +75,14 @@ calls, cron/scheduler runs, Kanban workers, maintenance, evaluation, review, and
 scratch sessions outside Crystal unless a reviewed policy explicitly includes
 them.
 
+An unbound context engine copied for background work must not inherit ambient
+process identity from its parent front door. Until the copy has its own explicit
+session binding, route it to ordinary Hermes compression. Also reject Hermes's
+exact `bg-review` thread before ambient front-door classification: that worker
+can retain the parent's platform and session identity even though it is not a
+human-facing conversation. Do not exclude unrelated worker thread names by
+substring.
+
 There are two write boundaries:
 
 1. pre/post-turn hooks must not create Crystal state for excluded actors;
@@ -81,11 +90,26 @@ There are two write boundaries:
    ordinary Hermes compression without Crystal telemetry or filesystem writes.
 
 Method routing alone is insufficient if the wrapper and built-in compressor
-split thresholds, token counters, post-compression latches, effectiveness state,
-or session binding. Synchronize that state in both directions for excluded
-actors. Prove exclusion with real actor smokes and before/after directory plus
-registry comparisons; a correct subagent response does not prove zero side
-effects.
+split budgets and thresholds, token counters, post-compression latches,
+effectiveness/error state, context-probe state, compression counts, or session
+binding. Synchronize that state in both directions before and after every
+excluded compressor call. Preserve positional and keyword session binding,
+cache host binding before actor identity exists, and rebind after fallback
+recreation. Prove the host-visible session ID and state match the built-in
+compressor lifecycle. Routing mocks alone are not proof: exercise lowered
+thresholds, preflight deferral, compaction latches, and real-usage latch clearing.
+
+## Independent health planes
+
+Profile-hub freshness is a separate health plane. A green plugin load, core
+health check, test suite, session tick, or scheduled governance pass does not
+prove that `PROFILE_CRYSTAL.md` reflects the current head session.
+
+Report at least four verdicts separately: core state compatibility,
+excluded-actor integrity, session continuity, and profile-hub freshness. Profile
+promotion uses the newest session by `last_activity_at`; see
+`docs/profile-session-scope.md` for recency, corroboration, and supersession
+rules.
 
 ## Write integrity
 

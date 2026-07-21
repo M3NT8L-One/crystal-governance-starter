@@ -2,6 +2,7 @@
   "activity_state": "idle_clean",
   "doc_token_estimate": 290,
   "last_doc_hash": "sha256:example-beta",
+  "last_activity_at": "2026-01-01T01:00:00Z",
   "profile": "default",
   "render_state": "idle_clean",
   "session_id": "session-beta"

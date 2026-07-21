@@ -176,7 +176,13 @@ Rules:
   idle target or quality flags are present. A changed, clean, small document is
   a zero-model `idle_clean_noop`.
 - Reconcile only related sessions.
-- Produce reviewable prune/sync/promote output.
+- Order profile-hub inputs by `last_activity_at`, use the newest session as the
+  volatile head, and require independent support from two distinct recent
+  session IDs for a durable historical claim absent from that head.
+- Age sync events against newest activity and classify volatility with whole
+  tokens or narrow phrases, not substring matches.
+- Produce reviewable prune/sync/promote output; do not run profile-hub sync from
+  a promised read-only audit.
 - Do not delete raw transcript or evidence.
 - Do not silently write permanent memory, facts, or skills.
 - Seal the document hash after rewrite and again after profile/hub sync so the
@@ -203,8 +209,9 @@ gem_cutter:
 
 1. Create a Crystal state root with `profiles/<profile>/PROFILE_CRYSTAL.md`.
 2. Create one `sessions/<session_id>/CRYSTAL.md` per active session.
-3. Track `meta.json` with last processed turn, doc hash, token estimate,
-   activity state, render state, turns since medium compact, and worker locks.
+3. Track `meta.json` with last processed turn, `last_activity_at`, doc hash,
+   token estimate, activity state, render state, turns since medium compact, and
+   worker locks.
 4. Run deterministic extraction after meaningful user-facing turns; queue Facet
    through stateful 6/12/2 cadence, accumulated tools, lifecycle, and quality.
 5. Run Crystallizer on pressure **or** turn/quality hygiene triggers.

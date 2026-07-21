@@ -1,8 +1,11 @@
-version: 2
+version: 3
 
 profile_scope:
   default_rule: "Only positively classified human-facing front doors write Crystal state."
   fail_closed_when_platform_and_source_empty: true
+  unbound_context_engine: exclude
+  ambient_process_identity_may_bind_unbound_engine: false
+  background_review_thread_name: bg-review
   excluded_by_default:
     - auxiliary model calls
     - subagents
@@ -15,11 +18,49 @@ profile_scope:
     - pre and post turn hooks
     - complete context engine lane
   excluded_engine_behavior: "Use ordinary Hermes compression with no Crystal telemetry or filesystem writes."
+  excluded_compressor_state_sync: bidirectional
+  synchronized_state_fields:
+    - context_window
+    - max_token_budget
+    - max_token_estimate
+    - provider_usage
+    - fallback_threshold
+    - preflight_threshold
+    - compaction_threshold
+    - smart_compaction_threshold
+    - threshold
+    - compression_count
+    - last_compression_error
+    - last_context_probe
+    - last_context_probe_error
+    - post_compression_pending
+    - compaction_in_progress
+    - effectiveness_enabled
+    - effectiveness_cooldown
+    - session_binding
+  session_binding_contract: "Preserve positional and keyword binding, cache host binding before actor identity, and rebind after fallback recreation."
   verification: "Compare Crystal session directories and registry entries before and after real excluded-actor smokes."
+
+profile_hub_promotion:
+  order_by: last_activity_at
+  tie_breaker: session_id
+  missing_or_malformed_activity_sorts_oldest: true
+  newest_session_authoritative_for_volatile_state: true
+  historical_nonvolatile_claims:
+    allow_when_exact_in_newest: true
+    distinct_recent_sessions_required: 2
+    same_session_repetition_counts_once: true
+  freshness_anchor: newest_session_activity
+  volatile_matching: whole_tokens_and_narrow_phrases
+  read_only_audit_may_sync_profile_hub: false
 
 session_scope:
   required_session_doc: "CRYSTAL.md"
   required_meta: "meta.json"
+  required_metadata_fields:
+    - last_activity_at
+  required_registry_fields:
+    - last_activity_at
   shared_mutable_doc: "forbidden"
   raw_transcript_is_authoritative: true
   crystal_may_delete_raw_transcript: false

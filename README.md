@@ -64,11 +64,12 @@ A profile crystal carries profile-wide continuity and reviewed cross-session dec
 
 ## What is included
 
-- Profile and session scope rules
+- Profile and session scope rules, including recency-based profile-hub promotion
 - Stateful 6/12/2 Facet cadence and authoritative section operations
 - Crystallizer pressure and quality-hygiene contracts
 - Gem Cutter spend gates, no-op paths, and hash sealing
-- Front-door classification and complete context-engine lane isolation
+- Front-door classification, unbound/background-review exclusion, and complete context-engine lane isolation
+- Separate core-health and profile-hub-freshness verdicts
 - Shared redaction, bounded writes, and concurrency guidance
 - Read-only audit, health, and triage tools
 - Dry-run-first registry reconciliation with archives and restoration receipts

@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -16,6 +17,106 @@ if str(SCRIPTS) not in sys.path:
 
 import crystal_health_check  # noqa: E402
 import crystal_registry_reconcile  # noqa: E402
+
+
+class GovernanceContractTests(unittest.TestCase):
+    def test_scope_policy_covers_profile_freshness_and_background_engine_gates(self) -> None:
+        policy = (ROOT / "policies/crystal-governance/scope-rules.yaml").read_text(encoding="utf-8")
+
+        for contract in (
+            "profile_hub_promotion:",
+            "order_by: last_activity_at",
+            "distinct_recent_sessions_required: 2",
+            "unbound_context_engine: exclude",
+            "background_review_thread_name: bg-review",
+            "excluded_compressor_state_sync: bidirectional",
+        ):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, policy)
+
+    def test_docs_separate_profile_hub_freshness_from_core_health(self) -> None:
+        docs = "\n".join(
+            (ROOT / path).read_text(encoding="utf-8")
+            for path in (
+                "docs/architecture.md",
+                "docs/profile-session-scope.md",
+                "docs/operations-health-and-reconcile.md",
+            )
+        )
+
+        for contract in (
+            "Profile-hub freshness is a separate health plane",
+            "newest session by `last_activity_at`",
+            "two distinct recent session IDs",
+            "must not rewrite `PROFILE_CRYSTAL.md`",
+            "unbound context engine",
+            "`bg-review`",
+        ):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, docs)
+
+    def test_sample_registry_activity_matches_session_metadata(self) -> None:
+        profile = ROOT / "examples/sample-crystal-home/profiles/default"
+        registry = json.loads((profile / "registry.json").read_text(encoding="utf-8"))
+        activity: dict[str, datetime] = {}
+
+        for session_id, entry in registry["sessions"].items():
+            registry_time = str(entry["last_activity_at"])
+            meta = json.loads((profile / "sessions" / session_id / "meta.json").read_text(encoding="utf-8"))
+            self.assertEqual(meta["last_activity_at"], registry_time)
+            activity[session_id] = datetime.fromisoformat(registry_time.replace("Z", "+00:00"))
+
+        self.assertEqual(max(activity, key=lambda session_id: activity[session_id]), "session-beta")
+
+    def test_policy_and_worker_example_share_canonical_scope_keys(self) -> None:
+        policy = (ROOT / "policies/crystal-governance/scope-rules.yaml").read_text(encoding="utf-8")
+        workers = (ROOT / "examples/crystal.workers.example.yaml").read_text(encoding="utf-8")
+
+        def list_below(text: str, key: str) -> list[str]:
+            lines = text.splitlines()
+            key_index = next(index for index, line in enumerate(lines) if line.strip() == f"{key}:")
+            key_indent = len(lines[key_index]) - len(lines[key_index].lstrip())
+            values: list[str] = []
+            for line in lines[key_index + 1 :]:
+                stripped = line.strip()
+                indent = len(line) - len(line.lstrip())
+                if stripped and indent <= key_indent:
+                    break
+                if stripped.startswith("- "):
+                    values.append(stripped[2:])
+            return values
+
+        canonical_keys = (
+            "ambient_process_identity_may_bind_unbound_engine",
+            "missing_or_malformed_activity_sorts_oldest",
+            "allow_when_exact_in_newest",
+            "distinct_recent_sessions_required",
+            "same_session_repetition_counts_once",
+            "freshness_anchor",
+            "volatile_matching",
+            "read_only_audit_may_sync_profile_hub",
+            "synchronized_state_fields",
+        )
+        for key in canonical_keys:
+            self.assertIn(key, policy)
+            self.assertIn(key, workers)
+        for deprecated_key in (
+            "ambient_parent_identity_may_authorize_unbound_engine",
+            "distinct_recent_sessions_for_older_durable_claim",
+            "forbidden_during_read_only_audit",
+        ):
+            self.assertNotIn(deprecated_key, policy)
+            self.assertNotIn(deprecated_key, workers)
+        self.assertEqual(
+            list_below(policy, "synchronized_state_fields"),
+            list_below(workers, "synchronized_state_fields"),
+        )
+
+    def test_policy_requires_activity_metadata_for_session_scope(self) -> None:
+        policy = (ROOT / "policies/crystal-governance/scope-rules.yaml").read_text(encoding="utf-8")
+        self.assertIn("required_metadata_fields:", policy)
+        self.assertIn("required_registry_fields:", policy)
+        self.assertGreaterEqual(policy.count("- last_activity_at"), 2)
 
 
 class HealthCheckTests(unittest.TestCase):

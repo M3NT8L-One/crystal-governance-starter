@@ -24,6 +24,16 @@ else:
 - sync queue has conflicts or high-confidence profile-wide deltas;
 - operator asks for a checkpoint, handoff, or cleanup audit.
 
+For profile-hub promotion, order sessions by `last_activity_at` with a stable
+session-ID tie-breaker. The newest session is authoritative for volatile state.
+An older durable claim absent from that head requires corroboration from two
+distinct recent session IDs; repeated events from one session count once. Age
+events against newest activity and classify volatile text with whole tokens or
+narrow phrases, not substring matches.
+
+Profile-hub freshness is a separate verdict from core runtime health. A promised
+read-only audit must not call profile sync or rewrite `PROFILE_CRYSTAL.md`.
+
 ## Bad triggers
 
 - unchanged Crystal state;

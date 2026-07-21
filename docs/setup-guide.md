@@ -69,8 +69,17 @@ triggers, locks, and render targets.
 
 Before enabling a live integration, positively classify front-door actors and
 gate both hooks and the complete context-engine lane. Real subagent, cron, and
-worker smokes must create no Crystal directory or registry entry. Preserve raw
-Hermes transcripts as authoritative evidence.
+worker smokes must create no Crystal directory or registry entry. An unbound
+copied engine must ignore ambient parent identity, and an exact `bg-review`
+thread must remain excluded even when it retains the parent session identity.
+For excluded actors, verify bidirectional host-to-fallback threshold, latch,
+usage, error, probe, and session-binding state—not only method routing. Preserve
+raw Hermes transcripts as authoritative evidence.
+
+Record `last_activity_at` for every session. Profile-hub promotion should use the
+newest activity as the volatile head and require two-session corroboration for
+older durable claims. Check profile-hub freshness separately from core health,
+and never invoke a profile-hub writer during a promised read-only audit.
 
 Read `docs/efficiency-and-savings.md` before publishing efficiency estimates. Short
 sessions below the first compression boundary may see no savings or slight

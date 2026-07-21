@@ -36,6 +36,12 @@ That keeps the public starter safe: people can see the governance behavior
 without granting it authority to mutate memory, profile docs, skills, or live
 runtime state.
 
+The companion plugin is not evidence that a live context-engine wrapper enforces
+unbound-copy or background-review exclusion, or that wrapper and built-in
+compressor state stay synchronized. Those implementation contracts and their
+required stateful tests are described in `docs/architecture.md`; validate them in
+the actual live integration before enabling it.
+
 ## Link Into Hermes
 
 From this repository root:

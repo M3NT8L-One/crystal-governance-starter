@@ -146,9 +146,13 @@ def scan_governance_contracts() -> list[str]:
         for path in (
             "README.md",
             "docs/architecture.md",
+            "docs/profile-session-scope.md",
+            "docs/operations-health-and-reconcile.md",
             "docs/workers.md",
             "docs/efficiency-and-savings.md",
+            "policies/crystal-governance/scope-rules.yaml",
             "examples/crystal.workers.example.yaml",
+            "skills/devops/crystal-governance-starter/SKILL.md",
         )
     )
     required = (
@@ -161,12 +165,70 @@ def scan_governance_contracts() -> list[str]:
         "cooldown_turns: 2",
         "complete context-engine lane",
         "raw Hermes transcript",
+        "Profile-hub freshness is a separate health plane",
+        "last_activity_at",
+        "two distinct recent session IDs",
+        "unbound context engine",
+        "bg-review",
+        "excluded_compressor_state_sync: bidirectional",
     )
     for text in required:
         if text not in combined:
             errors.append(f"missing current Crystal governance contract: {text}")
     if "every_turn_or_two" in combined:
         errors.append("stale Facet cadence every_turn_or_two is still present")
+
+    canonical_contract_keys = (
+        "ambient_process_identity_may_bind_unbound_engine",
+        "missing_or_malformed_activity_sorts_oldest",
+        "allow_when_exact_in_newest",
+        "distinct_recent_sessions_required",
+        "same_session_repetition_counts_once",
+        "freshness_anchor",
+        "volatile_matching",
+        "read_only_audit_may_sync_profile_hub",
+        "synchronized_state_fields",
+    )
+    deprecated_contract_keys = (
+        "ambient_parent_identity_may_authorize_unbound_engine",
+        "distinct_recent_sessions_for_older_durable_claim",
+        "forbidden_during_read_only_audit",
+    )
+    for rel_path in (
+        "policies/crystal-governance/scope-rules.yaml",
+        "examples/crystal.workers.example.yaml",
+    ):
+        content = (ROOT / rel_path).read_text(encoding="utf-8")
+        for key in canonical_contract_keys:
+            if key not in content:
+                errors.append(f"{rel_path}: missing canonical contract key {key}")
+        for key in deprecated_contract_keys:
+            if key in content:
+                errors.append(f"{rel_path}: contains deprecated contract key {key}")
+
+    def list_below(text: str, key: str) -> list[str]:
+        lines = text.splitlines()
+        key_indexes = [index for index, line in enumerate(lines) if line.strip() == f"{key}:"]
+        if len(key_indexes) != 1:
+            return []
+        key_index = key_indexes[0]
+        key_indent = len(lines[key_index]) - len(lines[key_index].lstrip())
+        values: list[str] = []
+        for line in lines[key_index + 1 :]:
+            stripped = line.strip()
+            indent = len(line) - len(line.lstrip())
+            if stripped and indent <= key_indent:
+                break
+            if stripped.startswith("- "):
+                values.append(stripped[2:])
+        return values
+
+    policy = (ROOT / "policies/crystal-governance/scope-rules.yaml").read_text(encoding="utf-8")
+    workers = (ROOT / "examples/crystal.workers.example.yaml").read_text(encoding="utf-8")
+    policy_fields = list_below(policy, "synchronized_state_fields")
+    worker_fields = list_below(workers, "synchronized_state_fields")
+    if not policy_fields or policy_fields != worker_fields:
+        errors.append("policy and worker example synchronized_state_fields differ")
     return errors
 
 

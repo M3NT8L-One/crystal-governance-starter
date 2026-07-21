@@ -10,6 +10,9 @@ crystal_workers:
   actor_scope:
     positive_frontdoor_classification_required: true
     fail_closed_when_platform_and_source_empty: true
+    unbound_context_engine: exclude
+    ambient_process_identity_may_bind_unbound_engine: false
+    background_review_thread_name: bg-review
     exclude:
       - auxiliary_model
       - subagent
@@ -94,6 +97,18 @@ crystal_workers:
       - changed_and_idle_and_quality_flags_present
     idle_deep_prune_after_minutes: 60
     seal_hash_after_rewrite_and_profile_sync: true
+    profile_hub_promotion:
+      order_by: last_activity_at
+      tie_breaker: session_id
+      missing_or_malformed_activity_sorts_oldest: true
+      newest_session_authoritative_for_volatile_state: true
+      historical_nonvolatile_claims:
+        allow_when_exact_in_newest: true
+        distinct_recent_sessions_required: 2
+        same_session_repetition_counts_once: true
+      freshness_anchor: newest_session_activity
+      volatile_matching: whole_tokens_and_narrow_phrases
+      read_only_audit_may_sync_profile_hub: false
     allowed_actions:
       - deep_prune_stale_context
       - trim_redundant_or_superseded_notes
@@ -116,14 +131,34 @@ crystal_workers:
 
   excluded_compressor_state_sync:
     bidirectional: true
-    fields:
-      - budgets_and_thresholds
+    before_and_after_every_delegated_call: true
+    synchronized_state_fields:
+      - context_window
+      - max_token_budget
+      - max_token_estimate
       - provider_usage
-      - post_compression_latches
-      - effectiveness_and_cooldown
-      - compression_count_and_errors
-      - context_probe_state
+      - fallback_threshold
+      - preflight_threshold
+      - compaction_threshold
+      - smart_compaction_threshold
+      - threshold
+      - compression_count
+      - last_compression_error
+      - last_context_probe
+      - last_context_probe_error
+      - post_compression_pending
+      - compaction_in_progress
+      - effectiveness_enabled
+      - effectiveness_cooldown
       - session_binding
+    preserve_positional_and_keyword_binding: true
+    cache_binding_before_actor_identity: true
+    rebind_after_fallback_recreation: true
+    stateful_tests_required:
+      - lowered_threshold_round_trip
+      - preflight_deferral
+      - post_compression_latch_round_trip
+      - real_usage_clears_latches_on_both_objects
 
   render:
     active_fuller_fraction: 0.60

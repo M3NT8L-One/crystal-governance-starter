@@ -2,11 +2,13 @@
   "sessions": {
     "session-alpha": {
       "doc_token_estimate": 320,
+      "last_activity_at": "2026-01-01T00:00:00Z",
       "platform": "local",
       "topic_key": "crystal-scope"
     },
     "session-beta": {
       "doc_token_estimate": 290,
+      "last_activity_at": "2026-01-01T01:00:00Z",
       "platform": "local",
       "topic_key": "crystal-render"
     }

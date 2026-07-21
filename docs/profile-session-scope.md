@@ -72,3 +72,31 @@ Import a sync event into another session only when at least one is true:
 - Gem Cutter marks the item as relevant.
 
 Everything else stays local.
+
+## Profile-hub freshness and promotion
+
+Profile-hub freshness is a separate health plane from core state health,
+excluded-actor integrity, and session continuity. A readable registry and green
+worker checks do not prove that `PROFILE_CRYSTAL.md` is current.
+
+Select the newest session by `last_activity_at`, using a stable session-ID
+tie-breaker instead of registry or dictionary insertion order. Missing or
+malformed activity timestamps sort oldest. The newest session is authoritative
+for volatile current state: a pending, resolved, failed, healthy, stale, orphan,
+or other time-sensitive claim survives only when its exact normalized text is
+still present in the newest relevant section.
+
+A nonvolatile historical decision or constraint may survive when it is exact in
+the newest session or independently supported by two distinct recent session
+IDs. Repeated events from one session count as one source, not corroboration.
+Age session snapshots and sync events against the newest session activity so old
+same-session history cannot revive a claim omitted by the current head.
+
+Classify volatile language with whole tokens and narrow phrases. Do not use
+substring traps: durable words such as `interactive`, `runtime`, `gateway`, and
+`enabled` must not be rejected merely because they contain or resemble a shorter
+status marker.
+
+A promised read-only audit must not rewrite `PROFILE_CRYSTAL.md` or call a sync
+helper with write side effects. Inspect the rendered hub directly and report
+freshness separately; perform promotion only in an explicitly writable workflow.

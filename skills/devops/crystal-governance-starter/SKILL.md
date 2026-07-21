@@ -1,7 +1,7 @@
 ---
 name: crystal-governance-starter
 description: Use when reviewing or maintaining Crystal-style bounded living-context documents, worker cadence, actor isolation, token economics, health, or reversible registry reconciliation.
-version: 2.0.0
+version: 2.1.0
 author: Crystal Governance Starter
 license: MIT
 metadata:
@@ -29,21 +29,23 @@ Crystal is bounded working context. It is not permanent memory, a replacement tr
 2. Keep raw Hermes transcripts as authoritative evidence.
 3. Enable Crystal only for positively classified human-facing front doors; missing platform and source identity fails closed.
 4. Exclude auxiliary models, subagents, cron/scheduler jobs, Kanban workers, maintenance, evaluation, review, and scratch actors at hooks and the complete context-engine lane.
-5. For excluded actors, preserve ordinary built-in compression state while creating no Crystal telemetry, directory, or registry entry.
-6. Keep Profile Crystal small and profile-wide; keep each session Crystal local to one conversation.
-7. Move cross-session context through structured sync events and review.
-8. Run deterministic bounded extraction after meaningful front-door turns.
-9. Queue Facet through stateful defaults: six meaningful turns since attempt, twelve accumulated tool results since success, lifecycle/quality reasons, and a two-turn cooldown.
-10. Facet returns authoritative operations: snapshot sections allow `replace`/`clear`; durable sections allow `merge`; unknown and stale sections are rejected.
-11. Empty or invalid operations are failures. A successful idempotent operation may leave bytes unchanged.
-12. Preserve pending work added by concurrent turns; clear only the reasons and tool pressure represented by the completed Facet decision.
-13. Run Crystallizer on pressure (~75% toward ~50%), normal cadence, or earlier quality hygiene; keep the previous completed document if it fails.
-14. Run Gem Cutter only after a diff and idle check. Spend a model call only for size or quality pressure; clean small state is a zero-model no-op.
-15. Apply one redaction boundary to deterministic extraction and model-authored writes. Reject secret-only authoritative operations.
-16. Lock document before metadata, mutate metadata under lock, and update registries through locked read-modify-write.
-17. Durable memory, skill, fact, or profile promotion remains a separate reviewed action.
-18. Treat `DEGRADED` as visible maintenance debt and `UNHEALTHY` as a service failure.
-19. Fix drift producers before reconciliation. Protect every non-target in the full candidate set, require a singleton dry run, then archive with receipt and verification.
+5. An unbound copied context engine must ignore ambient parent identity, and the exact `bg-review` thread stays excluded even when it retains parent session identity.
+6. For excluded actors, synchronize host and built-in fallback budgets, thresholds, usage, latches, counts/errors, probe state, and session binding in both directions while creating no Crystal telemetry, directory, or registry entry.
+7. Keep Profile Crystal small and profile-wide; keep each session Crystal local to one conversation.
+8. Move cross-session context through structured sync events and review. Select the newest session by `last_activity_at`; require two distinct recent session IDs for an older durable claim absent from the newest head.
+9. Treat profile-hub freshness as separate from core health. A read-only audit inspects but never synchronizes or rewrites the hub.
+10. Run deterministic bounded extraction after meaningful front-door turns.
+11. Queue Facet through stateful defaults: six meaningful turns since attempt, twelve accumulated tool results since success, lifecycle/quality reasons, and a two-turn cooldown.
+12. Facet returns authoritative operations: snapshot sections allow `replace`/`clear`; durable sections allow `merge`; unknown and stale sections are rejected.
+13. Empty or invalid operations are failures. A successful idempotent operation may leave bytes unchanged.
+14. Preserve pending work added by concurrent turns; clear only the reasons and tool pressure represented by the completed Facet decision.
+15. Run Crystallizer on pressure (~75% toward ~50%), normal cadence, or earlier quality hygiene; keep the previous completed document if it fails.
+16. Run Gem Cutter only after a diff and idle check. Spend a model call only for size or quality pressure; clean small state is a zero-model no-op.
+17. Apply one redaction boundary to deterministic extraction and model-authored writes. Reject secret-only authoritative operations.
+18. Lock document before metadata, mutate metadata under lock, and update registries through locked read-modify-write.
+19. Durable memory, skill, fact, or profile promotion remains a separate reviewed action.
+20. Treat `DEGRADED` as visible maintenance debt and `UNHEALTHY` as a service failure.
+21. Fix drift producers before reconciliation. Protect every non-target in the full candidate set, require a singleton dry run, then archive with receipt and verification.
 
 ## Workflow
 
@@ -76,21 +78,26 @@ The measured **94.1%** ratio applies only to the replaceable history slice. Neve
 
 ## Common Pitfalls
 
-1. Putting Crystal into subagents or scheduled workers because the hooks appear excluded while the context engine still writes metadata.
-2. Delegating compressor methods without synchronizing wrapper-visible thresholds and post-compression latches.
-3. Running Facet every turn or using a lifetime sticky tool threshold instead of stateful 6/12/2 decisions.
-4. Treating empty Facet operations as success and wiping pending work.
-5. Redacting model input but accepting unredacted model-authored bullets.
-6. Running Gem Cutter on unchanged or clean-small state.
-7. Saving stale metadata snapshots or updating the registry without a lock.
-8. Calling a 90%+ history ratio daily, billable, or dollar savings.
-9. Applying registry reconciliation to a broad candidate set or deleting state without an archive receipt.
+1. Letting an unbound copied engine inherit ambient front-door identity, or allowing `bg-review` because it retained the parent session ID.
+2. Putting Crystal into subagents or scheduled workers because the hooks appear excluded while the context engine still writes metadata.
+3. Delegating compressor methods without bidirectional host/fallback synchronization and stateful latch tests.
+4. Promoting by registry insertion order, allowing one session's repeated events to count as corroboration, or treating substring matches as volatile-state evidence.
+5. Calling core health green while the profile hub is stale, or rewriting the hub during a read-only audit.
+6. Running Facet every turn or using a lifetime sticky tool threshold instead of stateful 6/12/2 decisions.
+7. Treating empty Facet operations as success and wiping pending work.
+8. Redacting model input but accepting unredacted model-authored bullets.
+9. Running Gem Cutter on unchanged or clean-small state.
+10. Saving stale metadata snapshots or updating the registry without a lock.
+11. Calling a 90%+ history ratio daily, billable, or dollar savings.
+12. Applying registry reconciliation to a broad candidate set or deleting state without an archive receipt.
 
 ## Verification Checklist
 
 - [ ] Positive front-door sessions create bounded Crystal state.
 - [ ] Real excluded actors create no Crystal directory or registry entry.
-- [ ] Excluded compression thresholds and latches remain coherent.
+- [ ] Unbound copies and `bg-review` ignore ambient parent identity.
+- [ ] Excluded compression thresholds, latches, usage, errors, probes, and session binding remain coherent on both host and fallback.
+- [ ] Profile-hub freshness is reported separately; newest-activity authority and distinct-session corroboration are tested.
 - [ ] Deterministic and model-authored writes share redaction and secret-only rejection.
 - [ ] Facet cadence, success semantics, and concurrent pending-state behavior are tested.
 - [ ] Crystallizer keeps the last completed document on failure.

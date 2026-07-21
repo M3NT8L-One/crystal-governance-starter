@@ -34,6 +34,22 @@ Lock checks are scoped to the selected profile, so another profile's lock cannot
 contaminate its status. The triage gate wakes for either audit findings or
 non-healthy status.
 
+## Profile-hub freshness is separate
+
+Profile-hub freshness is a separate health plane. `HEALTHY` here means the core
+state and registry checks passed; it does not certify that `PROFILE_CRYSTAL.md`
+contains the newest profile-wide truth. Review the hub for obsolete process
+state, completed work still shown as open, resolved defects, stale handoffs, and
+old scope claims.
+
+Evaluate core health, excluded-actor integrity, session continuity, and
+profile-hub freshness as separate verdicts. Choose the newest session by
+`last_activity_at`, require two distinct recent session IDs to corroborate a
+durable historical claim that is absent from the newest session, and treat the
+newest session as authoritative for volatile state. A read-only audit must not
+rewrite `PROFILE_CRYSTAL.md`; promotion and sync belong to a separate writable
+operation.
+
 ## Reconcile dry-run
 
 Always start against a copied or staged state root:

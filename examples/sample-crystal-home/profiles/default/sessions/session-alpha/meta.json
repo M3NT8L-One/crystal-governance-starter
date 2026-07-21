@@ -2,6 +2,7 @@
   "activity_state": "steady",
   "doc_token_estimate": 320,
   "last_doc_hash": "sha256:example-alpha",
+  "last_activity_at": "2026-01-01T00:00:00Z",
   "profile": "default",
   "render_state": "steady",
   "session_id": "session-alpha"
